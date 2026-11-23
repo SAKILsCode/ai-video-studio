@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>scene-template</title>
+  <!-- 1) CSS (read-only library) -->
+  <link rel="stylesheet" href="../tokens.css" />
+  <link rel="stylesheet" href="../components.css" />
+  <!-- 2) GSAP + core presets -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/gsap.min.js"></script>
+  <script src="../motion-presets.js"></script>
+  <!-- 3) Extensions (delete the ones this scene does not use) -->
+  <script src="../motion-presets.text.js"></script>
+  <script src="../motion-presets.tech.js"></script>
+  <script src="../motion-presets.diagrams.js"></script>
+  <script src="../motion-presets.data.js"></script>
+  <script src="../motion-presets.media.js"></script>
+</head>
+<!-- 9:16 body. For 16:9 use: width:1920px;height:1080px and add cc-stage--16x9 to the stage. -->
+<body style="margin:0;width:1080px;height:1920px;overflow:hidden;">
+
+  <!-- Stage: swap cc-stage--bn / cc-stage--en; add cc-stage--dark for emerald polarity; add cc-stage--16x9 for 16:9 -->
+  <div id="stage" class="cc-stage cc-stage--bn">
+    <div class="cc-lattice"></div><div class="cc-sparkle-dust"></div><div class="cc-vignette"></div>
+
+    <!-- Camera group: slots only. Never nest data-slot inside another slot. -->
+    <div id="cam" class="cc-cam">
+
+      <div class="cc-slot" data-slot="top">
+        <span id="pill_1" class="cc-pill cc-pill--gold" data-cc="pill">✦ প্রসঙ্গ</span>
+      </div>
+
+      <div class="cc-slot" data-slot="hero">
+        <h1 id="title_1" class="cc-title cc-title--hero" data-cc="title">শিরোনাম এখানে</h1>
+      </div>
+
+      <div class="cc-slot" data-slot="center">
+        <div id="card_1" class="cc-card cc-card--white" data-cc="card">
+          <div class="cc-card__label">০১</div>
+          <div class="cc-card__title">কার্ড শিরোনাম</div>
+          <div class="cc-card__text">সংক্ষিপ্ত বর্ণনা</div>
+        </div>
+      </div>
+
+      <!-- Other slots, uncomment as needed (one component family per slot):
+      <div class="cc-slot" data-slot="left"> ... </div>
+      <div class="cc-slot" data-slot="right"> ... </div>
+      <div class="cc-slot" data-slot="lower"> ... </div>
+      <div class="cc-slot" data-slot="full"> ... </div>
+      <div class="cc-slot" data-slot="free"> children use style="--col:1;--row:1;--span:2;--rspan:1" </div>
+      -->
+    </div>
+
+    <!-- Chrome: OUTSIDE .cc-cam
+    <div class="cc-avatar" data-cc="avatar"><div class="cc-avatar__inner"></div></div>
+    <div class="cc-waveform" data-cc="waveform"><span class="cc-waveform__bar"></span><span class="cc-waveform__bar"></span><span class="cc-waveform__bar"></span><span class="cc-waveform__bar"></span><span class="cc-waveform__bar"></span></div>
+    -->
+
+    <!-- Caption: OUTSIDE .cc-cam, direct child of stage. One .cc-caption per phrase; data-word numbered per phrase. -->
+    <div id="caps" class="cc-caption-stage" data-cc="caption">
+      <div id="cap_1" class="cc-caption">
+        <span class="cc-word" data-word="0">প্রথম</span>
+        <span class="cc-word cc-word--gold" data-word="1">গুরুত্বপূর্ণ</span>
+        <span class="cc-word" data-word="2">শব্দ</span>
+      </div>
+      <!-- <div id="cap_2" class="cc-caption"> ... </div> -->
+    </div>
+
+    <!-- Transition overlays (last in stage, OUTSIDE .cc-cam), e.g.:
+    <div id="wipe_1" class="cc-wipe cc-tx--emerald" data-dir="left"><div class="cc-wipe__panel"></div></div>
+    -->
+  </div>
+
+  <script>
+    // Seek-safe master timeline: paused, absolute times, no random/rAF/timeouts.
+    const tl = gsap.timeline({ paused: true });
+    window.__timelines = window.__timelines || {};
+    window.__timelines["main"] = tl;
+
+    const $ = (s) => document.querySelector(s);
+
+    // Word start times (seconds) copied from audio/timestamps.json, same order as data-word.
+    const CAP1_TIMES = [0.30, 0.65, 1.00];
+
+    // Beat 1 (enter)
+    CCMotion.fadeUp(tl, $("#pill_1"), 0.05);
+    CCMotion.fadeUp(tl, $("#title_1"), 0.20);
+    CCMotion.popIn(tl, $("#card_1"), 0.60);
+    CCMotion.captionPhrase(tl, $("#cap_1"), 0.30, { times: CAP1_TIMES, byAttr: true });
+
+    // Beat exit (before next beat enters)
+    CCMotion.exitFade(tl, [$("#pill_1"), $("#title_1")], 2.60);
+    CCMotion.exitCard(tl, $("#card_1"), 2.60);
+
+    // Optional: CCMotion.cameraDrift(tl, $("#cam"), 0, 3.2);
+    // Optional: CCMotion.irisTransition(tl, $("#iris"), 3.0, { stage: $("#stage"), toDark: true });
+  </script>
+</body>
+</html>

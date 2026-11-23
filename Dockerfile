@@ -37,5 +37,8 @@ RUN npm install -g hyperframes
 # 4. Google Antigravity CLI (official coding agent for Google AI Pro accounts)
 RUN curl -fsSL https://antigravity.google/cli/install.sh | bash
 
+# install codex for chatgpt
+RUN npm install -g @openai/codex
+
 WORKDIR /studio
 CMD ["sleep", "infinity"]

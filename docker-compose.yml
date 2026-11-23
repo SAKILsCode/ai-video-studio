@@ -15,6 +15,7 @@ services:
     volumes:
       - ./workspace:/studio
       - gemini_auth:/root/.gemini
+      - codex_auth:/root/.codex
       - hf_cache:/root/.cache
       - studio_config:/root/.config
       - studio_agents:/root/.agents
@@ -23,6 +24,7 @@ services:
 
 volumes:
   gemini_auth:
+  codex_auth:
   hf_cache:
   studio_config:
   studio_agents:

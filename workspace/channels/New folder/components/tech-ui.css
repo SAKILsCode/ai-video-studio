@@ -1,0 +1,573 @@
+/* ==========================================================================
+   CH01 — TECHNICAL AND PRODUCT UI (Batch 3). READ-ONLY.
+   Pure token consumer. Loaded AFTER typography.css.
+   Hard-coded px only for borders/hairlines. Same markup in 9:16 and 16:9.
+   term / code / diff / filetree are ALWAYS dark, whatever the stage polarity.
+   ========================================================================== */
+
+/* ---------- 1. SHARED DARK CODE SURFACE ---------- */
+.cc-term,
+.cc-code,
+.cc-diff,
+.cc-filetree {
+  --ink: var(--term-text);
+  --ink-secondary: var(--term-text);
+  --ink-muted: var(--term-dim);
+  --rule: var(--term-line);
+  --accent: var(--term-prompt);
+  --hl: var(--term-prompt);
+  --hl-2: var(--term-ok);
+  --code-lh: 1.5;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  border: 2px solid var(--term-line);
+  border-radius: var(--radius-md);
+  background: var(--term-bg);
+  box-shadow: var(--shadow-card-dark);
+  color: var(--term-text);
+  font-family: var(--font-mono);
+  font-size: var(--fs-code);
+  font-weight: 500;
+  line-height: var(--code-lh);
+  letter-spacing: 0;
+  text-align: start;
+  text-transform: none;
+}
+
+.cc-code,
+.cc-diff { background: var(--code-bg); }
+
+.cc-term__bar,
+.cc-code__tabs {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border-bottom: 2px solid var(--term-line);
+  background: var(--term-bar);
+  color: var(--term-dim);
+  font-size: var(--fs-label);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+/* ---------- 2. TERMINAL ---------- */
+.cc-term__bar::before {
+  content: "";
+  flex: none;
+  width: var(--space-1);
+  height: var(--space-1);
+  margin-inline-end: calc(var(--space-2) * 2);
+  border-radius: 50%;
+  background: var(--term-err);
+  box-shadow: var(--space-2) 0 0 var(--term-warn), calc(var(--space-2) * 2) 0 0 var(--term-ok);
+}
+
+.cc-term__body {
+  padding: var(--space-2) var(--space-3);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.cc-term__line {
+  display: block;
+  min-height: calc(1em * var(--code-lh));
+}
+
+.cc-term__line--ok { color: var(--term-ok); }
+.cc-term__line--err { color: var(--term-err); }
+.cc-term__line--dim { color: var(--term-dim); }
+
+.cc-term__prompt {
+  margin-inline-end: 1ch;
+  color: var(--term-prompt);
+  font-weight: 700;
+  user-select: none;
+}
+
+/* Typed command: width is tweened in ch by typeCommand (monospace = exact) */
+.cc-term__typed {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  vertical-align: bottom;
+  white-space: pre;
+}
+
+.cc-term__cursor {
+  display: inline-block;
+  width: 0.6ch;
+  height: 1.15em;
+  margin-inline-start: 2px;
+  background: var(--term-cursor);
+  vertical-align: text-bottom;
+}
+
+/* ---------- 3. CODE ---------- */
+.cc-code__tabs > * {
+  padding: calc(var(--space-1) / 2) var(--space-2);
+  border-radius: var(--radius-tile);
+}
+
+.cc-code__tabs > :first-child {
+  background: var(--code-bg);
+  color: var(--term-text);
+}
+
+.cc-code__body { padding: var(--space-2) 0; }
+
+/* No whitespace between gutter and code except the code's own indentation */
+.cc-code__line {
+  display: block;
+  min-height: calc(1em * var(--code-lh));
+  padding-inline-end: var(--space-3);
+  overflow: hidden;
+  color: var(--syn-var);
+  white-space: pre;
+}
+
+.cc-code__gutter {
+  display: inline-block;
+  width: calc(var(--fs-code) * 2);
+  margin-inline-end: var(--space-2);
+  color: var(--code-gutter);
+  text-align: end;
+  user-select: none;
+}
+
+.cc-code__line--hl {
+  background: var(--code-hl);
+  box-shadow: inset calc(var(--space-1) / 2) 0 0 var(--syn-kw);
+}
+
+.cc-tok--kw { color: var(--syn-kw); }
+.cc-tok--str { color: var(--syn-str); }
+.cc-tok--num { color: var(--syn-num); }
+.cc-tok--fn { color: var(--syn-fn); }
+.cc-tok--type { color: var(--syn-type); }
+.cc-tok--var { color: var(--syn-var); }
+.cc-tok--cm { color: var(--syn-cm); font-style: italic; }
+
+/* ---------- 4. DIFF ---------- */
+.cc-diff { padding: var(--space-1) 0; }
+
+.cc-diff__hunk {
+  padding: calc(var(--space-1) / 2) var(--space-3);
+  overflow: hidden;
+  background: var(--term-bar);
+  color: var(--syn-fn);
+  font-size: var(--fs-label);
+  white-space: pre;
+}
+
+.cc-diff__line {
+  --flash: 0.14;
+  position: relative;
+  display: block;
+  min-height: calc(1em * var(--code-lh));
+  padding-inline: calc(var(--space-3) * 2) var(--space-3);
+  overflow: hidden;
+  white-space: pre;
+}
+
+.cc-diff__line::before {
+  position: absolute;
+  inset-inline-start: var(--space-3);
+  width: 2ch;
+}
+
+.cc-diff__line--add {
+  background: color-mix(in srgb, var(--diff-add) calc(var(--flash) * 100%), transparent);
+  color: var(--diff-add);
+}
+
+.cc-diff__line--add::before { content: "+"; }
+
+.cc-diff__line--del {
+  background: color-mix(in srgb, var(--diff-del) calc(var(--flash) * 100%), transparent);
+  color: var(--diff-del);
+}
+
+.cc-diff__line--del::before { content: "-"; }
+.cc-diff__line--ctx { color: var(--term-dim); }
+
+/* ---------- 5. BROWSER ---------- */
+.cc-browser {
+  --ink: var(--ink-dark);
+  --ink-secondary: var(--ink-dark-secondary);
+  --ink-muted: var(--ink-dark-muted);
+  --rule: var(--chart-grid);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  border: 2px solid var(--card-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--card-white);
+  box-shadow: var(--shadow-card-lg);
+  color: var(--ink-dark);
+  text-align: start;
+}
+
+.cc-browser__chrome {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border-bottom: 2px solid var(--card-border-subtle);
+  background: var(--paper-edge);
+}
+
+.cc-browser__chrome::before {
+  content: "";
+  flex: none;
+  width: var(--space-1);
+  height: var(--space-1);
+  margin-inline-end: calc(var(--space-2) * 2);
+  border-radius: 50%;
+  background: var(--ink-dark-muted);
+  box-shadow: var(--space-2) 0 0 var(--ink-dark-muted), calc(var(--space-2) * 2) 0 0 var(--ink-dark-muted);
+}
+
+.cc-browser__url {
+  flex: 1;
+  min-width: 0;
+  padding: calc(var(--space-1) / 2) var(--space-2);
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--paper-top);
+  color: var(--ink-dark-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cc-browser__viewport {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--paper-base);
+}
+
+.cc-browser__viewport > img,
+.cc-browser__viewport > video,
+.cc-device > img,
+.cc-device > video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cc-browser__viewport > img,
+.cc-browser__viewport > video {
+  position: absolute;
+  inset: 0;
+}
+
+/* ---------- 6. DEVICE (place inside a slot: phone sizes from slot height) ---------- */
+.cc-device {
+  position: relative;
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  border: var(--space-1) solid var(--term-bar);
+  background: var(--term-bg);
+  box-shadow: var(--shadow-card-dark);
+  color: var(--ink-light);
+}
+
+.cc-device--phone {
+  width: auto;
+  height: 100%;
+  min-height: calc(var(--fs-body) * 12);
+  aspect-ratio: 9 / 19.5;
+  border-radius: calc(var(--radius-card) * 1.4);
+}
+
+.cc-device--laptop {
+  width: 100%;
+  max-height: 100%;
+  aspect-ratio: 16 / 10;
+  border-bottom-width: calc(var(--space-1) * 3);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.cc-device--window {
+  --ink: var(--ink-dark);
+  --ink-secondary: var(--ink-dark-secondary);
+  --ink-muted: var(--ink-dark-muted);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: 2px solid var(--card-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--card-white);
+  box-shadow: var(--shadow-card-lg);
+  color: var(--ink-dark);
+}
+
+.cc-device--window::before {
+  content: "";
+  flex: none;
+  height: var(--space-4);
+  border-bottom: 2px solid var(--card-border-subtle);
+  background: var(--paper-edge);
+}
+
+.cc-device--window > * { flex: 1 1 auto; min-height: 0; }
+
+/* ---------- 7. CHAT ---------- */
+.cc-chat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: 100%;
+  text-align: start;
+}
+
+.cc-chat__bubble {
+  max-width: 86%;
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--card-border-subtle);
+  border-radius: var(--radius-card);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh);
+  overflow-wrap: break-word;
+  white-space: pre-line;
+}
+
+.cc-chat__bubble--user {
+  align-self: flex-end;
+  border-color: transparent;
+  border-end-end-radius: var(--radius-tile);
+  background: var(--brand-primary);
+  color: var(--ink-light);
+}
+
+.cc-stage--dark .cc-chat__bubble--user {
+  background: var(--brand-gold);
+  color: var(--ink-dark);
+}
+
+.cc-chat__bubble--ai {
+  align-self: flex-start;
+  border-end-start-radius: var(--radius-tile);
+  background: var(--card-white);
+  box-shadow: var(--shadow-card-sm);
+  color: var(--ink-dark);
+}
+
+/* Typing indicator: put 3 empty child spans inside */
+.cc-chat__typing {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--card-border-subtle);
+  border-radius: var(--radius-card);
+  border-end-start-radius: var(--radius-tile);
+  background: var(--card-white);
+  box-shadow: var(--shadow-card-sm);
+}
+
+.cc-chat__typing > * {
+  width: calc(var(--fs-body) * 0.35);
+  height: calc(var(--fs-body) * 0.35);
+  border-radius: 50%;
+  background: var(--ink-dark-muted);
+}
+
+.cc-chat__toolcall {
+  --done: 0;
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: var(--space-1);
+  max-width: 100%;
+  padding: calc(var(--space-1) / 2) var(--space-2);
+  border: 2px solid var(--term-line);
+  border-radius: var(--radius-pill);
+  background: var(--term-bg);
+  color: var(--term-text);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.cc-chat__toolcall::before {
+  content: "";
+  flex: none;
+  width: calc(var(--fs-label) * 0.45);
+  height: calc(var(--fs-label) * 0.45);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--term-ok) calc(var(--done) * 100%), var(--term-warn));
+}
+
+/* ---------- 8. KEYCAP + COMBO ---------- */
+.cc-keycap {
+  --press: 0;
+  --key-edge: color-mix(in srgb, var(--ink-dark) 28%, var(--card-white));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: calc(var(--fs-body) * 1.9);
+  height: calc(var(--fs-body) * 1.8);
+  padding: 0 var(--space-2);
+  border: 2px solid var(--card-border-subtle);
+  border-radius: var(--radius-tile);
+  background: var(--card-white);
+  box-shadow: 0 calc((1 - var(--press)) * var(--space-1) * 0.75) 0 var(--key-edge), var(--shadow-card-sm);
+  color: var(--ink-dark);
+  font-family: var(--font-mono);
+  font-size: var(--fs-body);
+  font-weight: 700;
+  line-height: 1;
+  translate: 0 calc(var(--press) * var(--space-1) * 0.75);
+  white-space: nowrap;
+}
+
+.cc-keycap--wide { min-width: calc(var(--fs-body) * 6); }
+
+.cc-keycap--mod {
+  background: var(--paper-edge);
+  font-size: var(--fs-label);
+}
+
+.cc-keycap--accent {
+  --key-edge: color-mix(in srgb, var(--ink-dark) 35%, var(--brand-gold));
+  border-color: transparent;
+  background: var(--brand-gold);
+  color: var(--ink-dark);
+}
+
+.cc-keycombo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* ---------- 9. COMMAND CHIP ---------- */
+.cc-cmd {
+  display: inline-flex;
+  align-items: center;
+  padding: calc(var(--space-1) / 2) var(--space-2);
+  border: 2px solid color-mix(in srgb, var(--ink) 18%, transparent);
+  border-radius: var(--radius-tile);
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+/* ---------- 10. FILETREE (indent with style="--depth:N") ---------- */
+.cc-filetree { padding: var(--space-2) 0; }
+
+.cc-filetree__row {
+  --depth: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0 var(--space-3);
+  padding-inline-start: calc(var(--space-3) + var(--depth) * var(--space-3));
+  color: var(--term-text);
+  white-space: nowrap;
+}
+
+.cc-filetree__row--open {
+  background: var(--code-hl);
+  color: var(--term-prompt);
+}
+
+.cc-filetree__row--changed::after {
+  content: "";
+  flex: none;
+  width: var(--space-1);
+  height: var(--space-1);
+  margin-inline-start: auto;
+  border-radius: 50%;
+  background: var(--term-warn);
+}
+
+/* ---------- 11. STATUS (spinner + stepped meter) ---------- */
+.cc-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--ink-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  line-height: 1.4;
+}
+
+.cc-status__spinner {
+  flex: none;
+  width: calc(var(--fs-label) * 1.1);
+  height: calc(var(--fs-label) * 1.1);
+  border: 3px solid color-mix(in srgb, var(--ink) 20%, transparent);
+  border-top-color: var(--hl);
+  border-radius: 50%;
+}
+
+.cc-status__meter {
+  --v: 0;
+  flex: none;
+  width: calc(var(--fs-body) * 5);
+  height: var(--space-1);
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--ink) 14%, transparent);
+}
+
+.cc-status__meter::after {
+  content: "";
+  display: block;
+  width: calc(var(--v) * 100%);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--hl);
+}
+
+/* ---------- 12. TOAST ---------- */
+.cc-toast {
+  --ink: var(--ink-dark);
+  --ink-secondary: var(--ink-dark-secondary);
+  --ink-muted: var(--ink-dark-muted);
+  --toast-c: var(--status-info);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  max-width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--card-border-subtle);
+  border-inline-start: var(--space-1) solid var(--toast-c);
+  border-radius: var(--radius-md);
+  background: var(--card-white);
+  box-shadow: var(--shadow-card-lg);
+  color: var(--ink-dark);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh);
+  text-align: start;
+  white-space: pre-line;
+}
+
+.cc-toast--ok { --toast-c: var(--status-ok); }
+.cc-toast--warn { --toast-c: var(--status-warn); }
+.cc-toast--err { --toast-c: var(--status-err); }

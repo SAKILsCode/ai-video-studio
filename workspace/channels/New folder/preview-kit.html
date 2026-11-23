@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Component Library Preview Kit</title>
+<link rel="stylesheet" href="tokens.css" onerror="pkFail('tokens.css')">
+<link rel="stylesheet" href="components.css" onerror="pkFail('components.css')">
+<style>
+  /* Viewer chrome only (not scene content) */
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#15181c;color:#d8dde3;font:13px/1.3 system-ui,-apple-system,Segoe UI,sans-serif}
+  #bar{position:sticky;top:0;z-index:50;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:8px 12px;background:#1d2127;border-bottom:1px solid #2b313a}
+  .grp{display:flex;gap:0;border:1px solid #39414d;border-radius:6px;overflow:hidden}
+  .grp button,.btn{background:#242a32;color:#c4cbd4;border:0;padding:5px 10px;font:inherit;cursor:pointer}
+  .grp button+button{border-left:1px solid #39414d}
+  .grp button.on,.btn.on{background:#0f9d73;color:#fff}
+  .btn{border:1px solid #39414d;border-radius:6px}
+  .btn:hover,.grp button:hover{filter:brightness(1.2)}
+  #tabs{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px;background:#191d22;border-bottom:1px solid #2b313a}
+  #tabs button{background:#242a32;color:#c4cbd4;border:1px solid #39414d;border-radius:6px;padding:5px 12px;font:inherit;cursor:pointer}
+  #tabs button.on{background:#e0b341;color:#1a1a1a;border-color:#e0b341;font-weight:600}
+  #scrub{width:220px;accent-color:#0f9d73}
+  #time{min-width:84px;font-variant-numeric:tabular-nums;color:#8d97a3}
+  #banner{padding:5px 12px;background:#4a2a1f;color:#ffb89e;font-size:12px;border-bottom:1px solid #7a4331}
+  #banner[hidden]{display:none}
+  #wrap{display:flex;justify-content:center;padding:12px}
+  #frame{position:relative;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.55);background:#000}
+  #scaler{position:absolute;left:0;top:0;transform-origin:0 0}
+  #stage{position:relative;width:1080px;height:1920px;overflow:hidden}
+  #stage.cc-stage--16x9{width:1920px;height:1080px}
+  .pk-ph{background:linear-gradient(135deg,#0f9d73 0%,#1d3a5f 55%,#e0b341 100%)}
+  .pk-probe{position:absolute;left:-9999px;top:0;width:10px;height:10px;visibility:hidden}
+</style>
+</head>
+<body>
+<div id="banner" hidden></div>
+<div id="bar">
+  <div class="grp" data-k="ar"><button data-v="16x9">16:9</button><button data-v="9x16" class="on">9:16</button></div>
+  <div class="grp" data-k="dark"><button data-v="0" class="on">Light</button><button data-v="1">Dark</button></div>
+  <div class="grp" data-k="bn"><button data-v="0" class="on">EN</button><button data-v="1">BN</button></div>
+  <button class="btn" id="guides">Safe guides</button>
+  <div class="grp"><button id="play">Pause</button><button id="replay">Replay</button></div>
+  <input id="scrub" type="range" min="0" max="100" step="0.1" value="0" aria-label="Timeline scrubber">
+  <span id="time">0.0s / 0.0s</span>
+</div>
+<div id="tabs"></div>
+<div id="wrap"><div id="frame"><div id="scaler"><div id="stage" class="cc-stage cc-stage--en"></div></div></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/gsap.min.js"></script>
+<script src="motion-presets.js"></script>
+<script src="motion-presets.text.js"></script>
+<script src="motion-presets.tech.js"></script>
+<script src="motion-presets.diagrams.js"></script>
+<script src="motion-presets.data.js"></script>
+<script src="motion-presets.media.js"></script>
+<script>
+/* ---------- state + helpers ---------- */
+const S = { ar:'9x16', dark:false, bn:false, guides:false, tab:0 };
+const stage = document.getElementById('stage'), frame = document.getElementById('frame'), scaler = document.getElementById('scaler');
+const scrub = document.getElementById('scrub'), playBtn = document.getElementById('play'), timeEl = document.getElementById('time');
+const banner = document.getElementById('banner');
+const failed = new Set(), missing = new Set(), errs = [];
+let tl = null;
+window.pkFail = f => { failed.add(f); showBanner(); };
+const T = (e,b) => S.bn ? b : e;
+const $ = s => stage.querySelector(s), $$ = s => Array.from(stage.querySelectorAll(s));
+const EXPECTED = ['fadeUp','slideIn','popIn','maskReveal','scaleIn','exitFade','exitDown','polarityFlip','highlightWord','underlineDraw',
+  'hookSlam','quoteReveal','lowerThirdIn','lowerThirdOut','bulletsStagger','captionPhrase','highlightDraw',
+  'typeCommand','appendLines','cursorBlink','keycapPress','bubbleIn','typingDots','toolCallPop',
+  'drawPath','nodeEnter','connectFlow','stepAdvance','splitWipe','checkTick',
+  'countUp','barGrow','lineDraw','dataStagger','kenBurns','mediaReveal','wipeTransition','captionPop','outroAssemble'];
+/* guarded preset call: records missing presets / thrown errors for the banner */
+const P = (name, ...a) => {
+  const f = window.CCMotion && CCMotion[name];
+  if (typeof f !== 'function') { missing.add(name); return; }
+  try { return f(...a); } catch (e) { errs.push(name + ': ' + e.message); }
+};
+function showBanner() {
+  const parts = [];
+  if (failed.size) parts.push('Failed to load: ' + [...failed].join(', '));
+  if (missing.size) parts.push('Missing presets: ' + [...missing].join(', '));
+  if (errs.length) parts.push('Errors: ' + errs.join(' | '));
+  banner.hidden = !parts.length;
+  banner.textContent = parts.join('   ·   ');
+}
+function preflight() {
+  if (!window.gsap) failed.add('GSAP');
+  if (!window.CCMotion) failed.add('motion-presets.js');
+  else EXPECTED.forEach(n => { if (typeof CCMotion[n] !== 'function') missing.add(n); });
+  const cs = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  if (!cs('--chart-1')) failed.add('tokens.css');
+  const pr = document.createElement('div'); pr.className = 'cc-stage pk-probe'; document.body.appendChild(pr);
+  const ps = getComputedStyle(pr);
+  if (!ps.getPropertyValue('--ink').trim()) failed.add('components/foundations.css');
+  if (!ps.getPropertyValue('--hl').trim()) failed.add('components/typography.css');
+  if (!ps.getPropertyValue('--data-up').trim()) failed.add('components/data.css');
+  pr.remove();
+}
+const words = (s, n0 = 0) => s.split(' ').map((w, i) => `<span class="cc-word" data-word="${i + n0}">${w}</span>`).join(' ');
+const slot = (name, inner) => `<div class="cc-slot" data-slot="${name}">${inner}</div>`;
+
+/* ---------- scenes ---------- */
+const SC = [];
+
+SC[0] = () => ({ // 1: Foundations
+  html: `<div class="cc-cam" id="cam">
+    ${slot('top', `<div class="cc-stack cc-stack--h cc-stack--wrap cc-stack--center cc-stack--gap-2">
+      <span class="cc-pill cc-pill--emerald" data-cc="pill">Emerald</span><span class="cc-pill cc-pill--gold" data-cc="pill">Gold</span>
+      <span class="cc-pill cc-pill--coral" data-cc="pill">Coral</span><span class="cc-pill cc-pill--mono" data-cc="pill">mono</span>
+      <span class="cc-badge" data-cc="badge">${T('New','নতুন')}</span><span class="cc-badge cc-badge--gold" data-cc="badge">Pro</span><span class="cc-badge cc-badge--coral" data-cc="badge">Beta</span></div>`)}
+    ${slot('left', `<div class="cc-card cc-card--white" data-cc="card"><div class="cc-card__label">${T('White card','সাদা কার্ড')}</div><div class="cc-card__title">${T('Foundations','ভিত্তি')}</div><div class="cc-card__text">${T('Slots, stacks and cards.','স্লট, স্ট্যাক ও কার্ড।')}</div></div>`)}
+    ${slot('right', `<div class="cc-card cc-card--dark" data-cc="card"><div class="cc-card__label">${T('Dark card','ডার্ক কার্ড')}</div><div class="cc-card__title">${T('Polarity','পোলারিটি')}</div><div class="cc-card__text">${T('Ink vars reset locally.','ইঙ্ক ভ্যার স্থানীয়ভাবে রিসেট।')}</div></div>`)}
+    ${slot('lower', `<div class="cc-stack cc-stack--v cc-stack--gap-3"><div class="cc-divider cc-divider--gold" data-cc="divider"></div>
+      <div class="cc-card cc-card--glass" data-cc="card"><div class="cc-card__label">${T('Glass card','গ্লাস কার্ড')}</div><div class="cc-card__text">${T('The stage flips polarity at 3.4s.','৩.৪ সেকেন্ডে স্টেজের পোলারিটি বদলায়।')}</div></div></div>`)}
+  </div>`,
+  build(tl) {
+    P('fadeUp', tl, $$('[data-slot=top] [data-cc]'), 0.2, { stagger: 0.1 });
+    P('popIn', tl, $('.cc-card--white'), 0.9);
+    P('slideIn', tl, $('.cc-card--dark'), 1.3);
+    P('fadeUp', tl, $$('[data-slot=lower] [data-cc]'), 1.8, { stagger: 0.2 });
+    P('polarityFlip', tl, stage, 3.4, !S.dark);
+    return 5.5;
+  }
+});
+
+SC[1] = () => {
+  const cap = T('Every frame stays seek safe', 'প্রতিটি ফ্রেম থাকে সিক সেফ');
+  return { // 2: Typography
+  html: `<div class="cc-cam" id="cam">
+    ${slot('top', `<div class="cc-eyebrow" data-cc="eyebrow">${T('Typography','টাইপোগ্রাফি')}</div>
+      <div class="cc-hook" data-cc="hook"><span class="cc-hook__line">${T('Stop scrolling.','স্ক্রল থামান।')}</span> <span class="cc-hook__accent">${T('Watch this.','এটা দেখুন।')}</span></div>`)}
+    ${slot('hero', `<h1 class="cc-title cc-title--hero" data-cc="title">${T('Build <span class="cc-highlight cc-highlight--marker" data-cc="highlight">faster</span> motion','তৈরি করুন <span class="cc-highlight cc-highlight--marker" data-cc="highlight">দ্রুত</span> মোশন')}</h1>
+      <p class="cc-subtitle" data-cc="subtitle">${T('Presets with <span class="cc-highlight cc-highlight--underline" data-cc="highlight">absolute timing</span>','<span class="cc-highlight cc-highlight--underline" data-cc="highlight">নির্দিষ্ট সময়ে</span> প্রিসেট')}</p>`)}
+    ${slot('center', `<div class="cc-quote" data-cc="quote"><span class="cc-quote__mark"></span><div class="cc-quote__text">${T('Motion is a timeline, not an accident.','মোশন একটি টাইমলাইন, কাকতালীয় নয়।')}</div><div class="cc-quote__cite">${T('Design Bible','ডিজাইন বাইবেল')}</div></div>`)}
+    ${slot('lower', `<div class="cc-lower-third" data-cc="lower-third"><span class="cc-lower-third__bar"></span><div><div class="cc-lower-third__name">${T('Flash Studio','ফ্ল্যাশ স্টুডিও')}</div><div class="cc-lower-third__role">${T('Motion system','মোশন সিস্টেম')}</div></div></div>`)}
+  </div>
+  <div class="cc-caption-stage" data-cc="caption-stage"><div class="cc-caption" id="cap1" data-cc="caption"><span class="cc-caption__line">${words(cap)}</span></div></div>`,
+  build(tl) {
+    const n = cap.split(' ').length;
+    P('hookSlam', tl, $('.cc-hook'), 0.2);
+    P('fadeUp', tl, $('.cc-title'), 0.9);
+    P('fadeUp', tl, $('.cc-subtitle'), 1.3);
+    P('highlightDraw', tl, $$('.cc-highlight'), 1.8, { stagger: 0.4 });
+    P('quoteReveal', tl, $('.cc-quote'), 2.6);
+    P('lowerThirdIn', tl, $('.cc-lower-third'), 3.4);
+    P('captionPhrase', tl, $('#cap1'), 3.6, { byAttr: true, times: Array.from({ length: n }, (_, i) => 3.6 + i * 0.35), exitAt: 6.2 });
+    P('lowerThirdOut', tl, $('.cc-lower-third'), 6.2);
+    return 7;
+  } };
+};
+
+SC[2] = () => {
+  const K = (c, t) => `<span class="cc-tok--${c}">${t}</span>`;
+  const code = [
+    K('kw', 'const ') + K('var', 'tl') + ' = gsap.' + K('fn', 'timeline') + '({ paused: ' + K('kw', 'true') + ' });',
+    'CCMotion.' + K('fn', 'fadeUp') + '(tl, el, ' + K('num', '0.4') + ');',
+    K('cm', '// seek-safe: absolute times only'),
+    'window.__timelines.main = tl;'
+  ].map((l, i) => `<div class="cc-code__line"><span class="cc-code__gutter">${i + 1}</span>${l}</div>`).join('');
+  return { // 3: Tech UI
+  html: `<div class="cc-cam" id="cam">
+    ${slot('top', `<div class="cc-stack cc-stack--h cc-stack--center cc-stack--gap-3">
+      <div class="cc-keycombo" data-cc="keycombo"><span class="cc-keycap cc-keycap--mod">Cmd</span><span class="cc-keycap">K</span></div>
+      <div class="cc-toast cc-toast--ok" data-cc="toast">${T('Build passed','বিল্ড সফল')}</div></div>`)}
+    ${slot('left', `<div class="cc-term" data-cc="term"><div class="cc-term__bar"></div><div class="cc-term__body">
+      <div class="cc-term__line"><span class="cc-term__prompt">$</span> <span class="cc-term__typed" id="typed">npm run build</span><span class="cc-term__cursor" id="cursor"></span></div>
+      <div id="termOut"><div class="cc-term__line cc-term__line--dim">compiling 42 modules</div><div class="cc-term__line cc-term__line--ok">OK tokens.css</div><div class="cc-term__line cc-term__line--ok">OK motion-presets.js</div><div class="cc-term__line cc-term__line--err">warn: 1 deprecation</div></div></div></div>`)}
+    ${slot('right', `<div class="cc-code" data-cc="code"><div class="cc-code__tabs">scene.js</div><div class="cc-code__body" id="codeBody">${code}</div></div>`)}
+    ${slot('lower', `<div class="cc-chat cc-stack cc-stack--v cc-stack--gap-2" data-cc="chat">
+      <div class="cc-chat__bubble cc-chat__bubble--user" id="b1">${T('Animate my intro','আমার ইন্ট্রো অ্যানিমেট করো')}</div>
+      <div class="cc-chat__typing" id="typing"><span></span><span></span><span></span></div>
+      <div class="cc-chat__toolcall" id="tool">CCMotion.fadeUp()</div>
+      <div class="cc-chat__bubble cc-chat__bubble--ai" id="b2">${T('Done. Timeline is seek-safe.','হয়ে গেছে। টাইমলাইন সিক-সেফ।')}</div></div>`)}
+  </div>`,
+  build(tl) {
+    P('windowEnter', tl, $('.cc-term'), 0.1);
+    P('typeCommand', tl, $('#typed'), 0.6, { cps: 14 });
+    P('cursorBlink', tl, $('#cursor'), 0.6, { dur: 4 });
+    P('appendLines', tl, $('#termOut'), 1.8, { stagger: 0.35 });
+    P('appendLines', tl, $('#codeBody'), 2.2, { stagger: 0.3 });
+    P('keycapPress', tl, $$('.cc-keycap'), 3.2, { stagger: 0.12 });
+    P('popIn', tl, $('.cc-toast'), 3.6);
+    P('bubbleIn', tl, $('#b1'), 4);
+    P('typingDots', tl, $('#typing'), 4.5, { dur: 1.2, hide: true });
+    P('toolCallPop', tl, $('#tool'), 5.2, { doneAt: 6 });
+    P('bubbleIn', tl, $('#b2'), 6.3);
+    return 7.5;
+  } };
+};
+
+SC[3] = () => {
+  const node = (l, s, v) => `<div class="cc-node cc-node--${v}" data-cc="node"><span class="cc-node__icon">&#9670;</span><span class="cc-node__label">${l}</span><span class="cc-node__sub">${s}</span></div>`;
+  const edge = `<div class="cc-edge cc-edge--arrow" data-cc="edge"><svg class="cc-edge__svg" viewBox="0 0 100 10" preserveAspectRatio="none"><path class="cc-edge__path" data-draw d="M0 5 L94 5"/><path class="cc-edge__head" d="M90 1 L100 5 L90 9"/></svg></div>`;
+  const step = (n, t, b) => `<div class="cc-step" data-cc="step"><span class="cc-step__num">${n}</span><div class="cc-step__text"><div class="cc-step__title">${t}</div><div class="cc-step__body">${b}</div></div></div>`;
+  const chk = t => `<div class="cc-checklist__item cc-checklist__item--todo"><span class="cc-checklist__tick"></span><span class="cc-checklist__text">${t}</span></div>`;
+  return { // 4: Diagrams
+  html: `<div class="cc-cam" id="cam">
+    ${slot('top', `<div class="cc-flow cc-flow--h" data-cc="flow">${node(T('Input','ইনপুট'), 'text', 'primary')}${edge}${node(T('Model','মডেল'), 'AI', 'accent')}${edge}${node(T('Output','আউটপুট'), 'video', 'muted')}</div>`)}
+    ${slot('left', `<div class="cc-stack cc-stack--v cc-stack--gap-2" id="steps" data-cc="steps">${step(1, T('Plan','পরিকল্পনা'), T('Pick a batch','ব্যাচ বাছুন'))}${step(2, T('Build','তৈরি'), T('Compose slots','স্লট সাজান'))}${step(3, T('Ship','প্রকাশ'), T('Render scene','সিন রেন্ডার'))}</div>`)}
+    ${slot('right', `<div class="cc-checklist" id="chk" data-cc="checklist">${chk(T('Tokens only','শুধু টোকেন'))}${chk(T('No inline style','ইনলাইন স্টাইল নয়'))}${chk(T('Seek-safe','সিক-সেফ'))}</div>`)}
+    ${slot('lower', `<div class="cc-split cc-split--before-after cc-split--wipe cc-split--h" id="split" data-cc="split"><div class="cc-split__a">${T('Before','আগে')}</div><div class="cc-split__b">${T('After','পরে')}</div><div class="cc-split__divider"></div></div>`)}
+  </div>`,
+  build(tl) {
+    const nodes = $$('.cc-node'), edges = $$('.cc-edge');
+    P('connectFlow', tl, nodes[0], edges[0], nodes[1], 0.3);
+    P('drawPath', tl, edges[1].querySelectorAll('[data-draw]'), 1.6, { dur: 0.7 });
+    P('nodeEnter', tl, nodes[2], 2.0);
+    P('stepAdvance', tl, $('#steps'), 2.6, { gap: 0.9 });
+    P('checkTick', tl, $('#chk'), 5.4, { stagger: 0.5 });
+    P('splitWipe', tl, $('#split'), 7.4, { dur: 1.2 });
+    return 9.5;
+  } };
+};
+
+SC[4] = () => {
+  const bar = (l, v, h) => `<div class="cc-bars__bar${h ? ' cc-bars__bar--hl' : ''}" style="--v:${v}"><span class="cc-bars__label">${l}</span><div class="cc-bars__track"><div class="cc-bars__fill"></div></div><span class="cc-bars__value">${Math.round(v * 100)}</span></div>`;
+  const row = (c, h) => `<div class="cc-table__row${h ? ' cc-table__row--head' : ''}">${c.map((x, i) => `<div class="cc-table__cell${i && !h ? ' cc-table__cell--num' : ''}">${x}</div>`).join('')}</div>`;
+  return { // 5: Data
+  html: `<div class="cc-cam" id="cam">
+    ${slot('top', `<div class="cc-kpi cc-kpi--dark" data-cc="kpi"><div class="cc-kpi__label">${T('Monthly revenue','মাসিক আয়')}</div>
+      <div class="cc-kpi__value"><span class="cc-kpi__num" data-value="12840" data-from="0" data-prefix="$" data-sep="," data-digits="auto">0</span></div>
+      <span class="cc-kpi__delta cc-kpi__delta--up">+18%</span><div class="cc-kpi__note">${T('vs last month','গত মাসের তুলনায়')}</div></div>`)}
+    ${slot('left', `<div class="cc-stack cc-stack--v cc-stack--gap-3">
+      <div class="cc-progress cc-progress--gold" id="prog" style="--v:0.72" data-cc="progress"><div class="cc-progress__head"><span class="cc-progress__label">${T('Goal','লক্ষ্য')}</span><span class="cc-progress__value">72%</span></div><div class="cc-progress__track"><div class="cc-progress__fill"></div></div></div>
+      <div class="cc-bars" id="bars" data-cc="bars">${bar('Q1', 0.45)}${bar('Q2', 0.65)}${bar('Q3', 0.9, true)}</div></div>`)}
+    ${slot('right', `<div class="cc-linechart cc-linechart--emerald" id="lc" data-cc="linechart"><svg class="cc-linechart__svg" viewBox="0 0 400 200">
+      <path class="cc-linechart__grid" d="M0 50H400M0 100H400M0 150H400"/>
+      <path class="cc-linechart__area" d="M10 160L90 120L170 135L250 70L330 85L390 30L390 200L10 200Z"/>
+      <path class="cc-linechart__line" pathLength="1" d="M10 160L90 120L170 135L250 70L330 85L390 30"/>
+      <circle class="cc-linechart__dot" cx="250" cy="70" r="5"/><circle class="cc-linechart__dot" cx="390" cy="30" r="5"/></svg></div>`)}
+    ${slot('lower', `<div class="cc-stack cc-stack--v cc-stack--gap-2"><div class="cc-table cc-table--compact cc-table--zebra" id="tbl" style="--cols:3" data-cc="table">
+      ${row([T('Plan','প্ল্যান'), T('Users','ব্যবহারকারী'), T('Rate','হার')], true)}${row(['Free', '1,200', '2%'])}${row(['Pro', '860', '9%'])}${row(['Team', '240', '14%'])}</div>
+      <div class="cc-source cc-source--footer" id="src" data-cc="source"><span class="cc-source__label">${T('Source','সূত্র')}</span><span class="cc-source__text">${T('Internal analytics','অভ্যন্তরীণ বিশ্লেষণ')}</span><span class="cc-source__year">2026</span></div></div>`)}
+  </div>`,
+  build(tl) {
+    P('fadeUp', tl, $('.cc-kpi'), 0.2);
+    P('countUp', tl, $('.cc-kpi__num'), 0.6, { dur: 1.6 });
+    P('barGrow', tl, $('#prog'), 1.2, { dur: 1 });
+    P('barGrow', tl, $$('#bars .cc-bars__bar'), 1.8, { stagger: 0.25 });
+    P('lineDraw', tl, $('#lc'), 2.6, { dur: 1.6 });
+    P('dataStagger', tl, $('#tbl'), 4.4, { sel: '.cc-table__row', stagger: 0.2 });
+    P('fadeUp', tl, $('#src'), 5.4);
+    return 7;
+  } };
+};
+
+SC[5] = () => {
+  const sub = T('Frames come alive in the browser', 'ফ্রেমগুলো ব্রাউজারে জীবন্ত হয়');
+  return { // 6: Media & Outro
+  html: `<div class="cc-cam" id="cam">
+    ${slot('center', `<div class="cc-media cc-media--framed cc-media--ar-16x9" id="media" data-cc="media"><div class="cc-media__el pk-ph" id="mel"></div><div class="cc-media__scrim cc-media__scrim--bottom"></div><span class="cc-media__tag">${T('Preview','প্রিভিউ')}</span><span class="cc-media__credit">Flash</span></div>`)}
+    ${slot('full', `<div class="cc-outro" id="outro" data-cc="outro"><div class="cc-outro__brand"><span class="cc-outro__mark"></span><span class="cc-outro__name">Flash</span></div><div class="cc-outro__rule"></div>
+      <div class="cc-cta cc-cta--subscribe"><span class="cc-cta__icon"></span><span class="cc-cta__text"><span class="cc-cta__label">${T('Subscribe','সাবস্ক্রাইব')}</span><span class="cc-cta__handle">@flash</span></span></div>
+      <div class="cc-outro__signoff">${T('Thanks for watching','দেখার জন্য ধন্যবাদ')}</div></div>`)}
+  </div>
+  <div class="cc-subtitles cc-subtitles--plate" id="subs" data-cc="subtitles"><span class="cc-subtitles__line">${sub.split(' ').map((w, i) => `<span class="cc-subtitles__word" data-word="${i}">${w}</span>`).join(' ')}</span></div>
+  <div class="cc-wipe cc-tx--emerald" id="wipe" data-dir="right" data-cc="wipe"><div class="cc-wipe__panel"></div></div>`,
+  build(tl) {
+    const n = sub.split(' ').length, wo = { kind: 'wipe', dur: 1.4 };
+    const pk = (window.CCMotion && CCMotion.wipeTransition && CCMotion.wipeTransition.peak) ? CCMotion.wipeTransition.peak(4.2, wo) : 4.9;
+    P('mediaReveal', tl, $('#media'), 0.2, { mode: 'mask' });
+    P('kenBurns', tl, $('#mel'), 0.2, { dir: 'in', dur: 5 });
+    P('captionPop', tl, $('.cc-subtitles__line'), 1.2, { mode: 'highlight', byAttr: true, times: Array.from({ length: n }, (_, i) => 1.2 + i * 0.4) });
+    P('wipeTransition', tl, $('#wipe'), 4.2, wo);
+    P('exitFade', tl, $('[data-slot=center]'), pk);
+    P('exitFade', tl, $('#subs'), pk);
+    P('outroAssemble', tl, $('#outro'), pk + 0.2);
+    return pk + 3;
+  } };
+};
+
+/* ---------- apply / build / fit ---------- */
+function applyClasses() {
+  stage.className = 'cc-stage ' + (S.ar === '16x9' ? 'cc-stage--16x9 ' : '') + (S.dark ? 'cc-stage--dark ' : '') + (S.bn ? 'cc-stage--bn' : 'cc-stage--en') + (S.guides ? ' cc-stage--guides' : '');
+}
+function fit() {
+  const W = S.ar === '16x9' ? 1920 : 1080, H = S.ar === '16x9' ? 1080 : 1920;
+  const bh = document.getElementById('bar').offsetHeight + document.getElementById('tabs').offsetHeight + (banner.hidden ? 0 : banner.offsetHeight);
+  const s = Math.max(0.05, Math.min((innerWidth - 24) / W, (innerHeight - bh - 28) / H));
+  frame.style.width = W * s + 'px'; frame.style.height = H * s + 'px';
+  scaler.style.width = W + 'px'; scaler.style.height = H + 'px'; scaler.style.transform = 'scale(' + s + ')';
+}
+function load(keep) {
+  const p = keep && tl ? tl.progress() : 0, was = keep && tl ? tl.paused() : false;
+  if (tl) tl.kill();
+  missing.clear(); errs.length = 0;
+  applyClasses();
+  const sc = SC[S.tab]();
+  stage.innerHTML = sc.html;
+  tl = gsap.timeline({ paused: true });
+  window.__timelines = { main: tl };
+  let end = 6;
+  try { end = sc.build(tl) || 6; } catch (e) { errs.push('scene: ' + e.message); }
+  tl.to({}, { duration: 0.01 }, end);
+  if (keep) { tl.progress(p); tl.paused(was); } else tl.play(0);
+  preflightMissing(); showBanner(); fit();
+}
+function preflightMissing() { if (!window.CCMotion) return; EXPECTED.forEach(n => { if (typeof CCMotion[n] !== 'function') missing.add(n); }); }
+
+/* ---------- controls ---------- */
+const tabs = document.getElementById('tabs');
+['1: Foundations', '2: Typography', '3: Tech UI', '4: Diagrams', '5: Data', '6: Media & Outro'].forEach((n, i) => {
+  const b = document.createElement('button'); b.textContent = n; if (!i) b.className = 'on';
+  b.onclick = () => { S.tab = i; [...tabs.children].forEach((c, j) => c.classList.toggle('on', j === i)); load(false); };
+  tabs.appendChild(b);
+});
+document.querySelectorAll('.grp[data-k]').forEach(g => g.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const k = g.dataset.k, v = b.dataset.v;
+  S[k] = k === 'ar' ? v : v === '1';
+  [...g.children].forEach(c => c.classList.toggle('on', c === b));
+  load(true);
+}));
+document.getElementById('guides').onclick = e => { S.guides = !S.guides; e.target.classList.toggle('on', S.guides); applyClasses(); };
+playBtn.onclick = () => { if (!tl) return; if (tl.progress() === 1) tl.restart(); else tl.paused(!tl.paused()); };
+document.getElementById('replay').onclick = () => { if (tl) tl.restart(); };
+scrub.addEventListener('input', () => { if (!tl) return; tl.paused(true); tl.progress(scrub.value / 100); });
+gsap.ticker.add(() => {
+  if (!tl) return;
+  if (document.activeElement !== scrub) scrub.value = (tl.progress() * 100).toFixed(1);
+  else scrub.value = (tl.progress() * 100).toFixed(1);
+  playBtn.textContent = (tl.paused() || tl.progress() === 1) ? 'Play' : 'Pause';
+  timeEl.textContent = tl.time().toFixed(1) + 's / ' + tl.duration().toFixed(1) + 's';
+});
+addEventListener('resize', fit);
+window.addEventListener('load', () => {
+  if (!window.gsap) { failed.add('GSAP'); showBanner(); return; }
+  preflight(); load(false);
+});
+</script>
+</body>
+</html>

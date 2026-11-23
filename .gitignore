@@ -1,14 +1,20 @@
-@"
-.env
-**/.env
-**/.backups/
-**/.hyperframes/
-**/.thumbnails/
-**/renders/
-**/audio/cache/
-workspace/references/
-*-snapshot.md
+# Project folders (all working videos & drafts)
+workspace/projects/
+projects/
+
+# Rendered outputs
+output/
+outputs/
+out/
+renders/
+
+# Audio and video media files
+*.mp3
 *.mp4
+*.mov
+*.mkv
 *.wav
-node_modules/
-"@ | Set-Content -Encoding utf8 .gitignore
+*.webm
+
+# Exception: keep the bundled sound effects inside the media-use skill
+!workspace/.agents/skills/media-use/audio/assets/sfx/*.mp3

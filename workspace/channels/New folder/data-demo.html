@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Batch 5 Data Demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="components.css">
+<style>
+  html, body { margin: 0; background: #1b1f1d; color: #fff; font-family: system-ui, sans-serif; }
+  #bar { display: flex; gap: 16px; align-items: center; padding: 12px 20px; position: sticky; top: 0; z-index: 999; background: #111; }
+  #bar input[type=range] { flex: 1; }
+  #bar button { padding: 8px 14px; border: 0; border-radius: 8px; background: #E5A93C; font-weight: 700; cursor: pointer; }
+  #holder { position: relative; margin: 16px auto; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+</style>
+</head>
+<body>
+
+<div id="bar">
+  <button id="play">Play</button>
+  <button id="aspect">Switch to 16:9</button>
+  <input id="scrub" type="range" min="0" max="1000" value="0">
+</div>
+
+<div id="holder">
+  <div class="cc-stage cc-stage--en cc-stage--dark" id="stage">
+    <div class="cc-cam">
+
+      <div class="cc-slot" data-slot="hero">
+        <div class="cc-metric cc-metric--xl" data-cc="metric" id="metric">
+          <div class="cc-metric__value">
+            <span class="cc-metric__num" data-value="98.4" data-decimals="1">0</span><span class="cc-metric__unit">%</span>
+          </div>
+          <div class="cc-metric__label">Customer retention</div>
+          <div class="cc-metric__sub">Q3 2026 vs Q2</div>
+        </div>
+      </div>
+
+      <div class="cc-slot" data-slot="center">
+        <div class="cc-stack cc-stack--v cc-stack--gap-3">
+
+          <div class="cc-grid cc-grid--cols-2 cc-grid--gap-2" id="kpis" data-cc="kpi-grid">
+            <div class="cc-kpi cc-kpi--dark cc-kpi--gold" data-cc="kpi">
+              <span class="cc-kpi__label">Active users</span>
+              <span class="cc-kpi__value"><span class="cc-kpi__num" data-value="1284">0</span><span class="cc-kpi__unit">k</span></span>
+              <span class="cc-kpi__delta cc-kpi__delta--up">+12%</span>
+              <div class="cc-kpi__spark">
+                <div class="cc-linechart cc-linechart--spark cc-linechart--gold">
+                  <svg class="cc-linechart__svg" viewBox="0 0 600 120" preserveAspectRatio="none">
+                    <path class="cc-linechart__line" d="M0 100 L120 80 L240 90 L360 50 L480 40 L600 10"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="cc-kpi cc-kpi--dark" data-cc="kpi">
+              <span class="cc-kpi__label">Revenue</span>
+              <span class="cc-kpi__value"><span class="cc-kpi__num" data-value="4.6" data-decimals="1" data-prefix="$">0</span><span class="cc-kpi__unit">M</span></span>
+              <span class="cc-kpi__delta cc-kpi__delta--down">-3%</span>
+              <span class="cc-kpi__note">vs last quarter</span>
+            </div>
+          </div>
+
+          <div class="cc-progress cc-progress--gold cc-progress--thick" id="prog" data-cc="progress" style="--v:.72">
+            <div class="cc-progress__head">
+              <span class="cc-progress__label">Goal completed</span>
+              <span class="cc-progress__value" data-value="72" data-suffix="%">0</span>
+            </div>
+            <div class="cc-progress__track"><div class="cc-progress__fill"></div></div>
+          </div>
+
+          <div class="cc-bars cc-bars--series" id="bars" data-cc="bars">
+            <div class="cc-bars__bar" style="--v:.8">
+              <span class="cc-bars__label">Dhaka</span>
+              <div class="cc-bars__track"><div class="cc-bars__fill"></div></div>
+              <span class="cc-bars__value" data-value="80" data-suffix="%">0</span>
+            </div>
+            <div class="cc-bars__bar" style="--v:.55">
+              <span class="cc-bars__label">Chattogram</span>
+              <div class="cc-bars__track"><div class="cc-bars__fill"></div></div>
+              <span class="cc-bars__value" data-value="55" data-suffix="%">0</span>
+            </div>
+            <div class="cc-bars__bar" style="--v:.38">
+              <span class="cc-bars__label">Khulna</span>
+              <div class="cc-bars__track"><div class="cc-bars__fill"></div></div>
+              <span class="cc-bars__value" data-value="38" data-suffix="%">0</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="cc-slot" data-slot="lower">
+        <div class="cc-source" id="src" data-cc="source">
+          <span class="cc-source__label">Source</span>
+          <span class="cc-source__text">Company analytics dashboard</span>
+          <span class="cc-source__year">2026</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="motion-presets.js"></script>
+<script src="motion-presets.data.js"></script>
+<script>
+  var stage = document.getElementById('stage');
+  var holder = document.getElementById('holder');
+  var tl;
+
+  function fit() {
+    var w = stage.offsetWidth, h = stage.offsetHeight;
+    var s = Math.min((window.innerHeight - 90) / h, (window.innerWidth - 32) / w);
+    stage.style.transform = 'scale(' + s + ')';
+    holder.style.width = (w * s) + 'px';
+    holder.style.height = (h * s) + 'px';
+  }
+
+  function build() {
+    if (tl) tl.kill();
+    tl = gsap.timeline({ paused: true });
+    CCMotion.popIn && CCMotion.popIn(tl, '#metric', 0.2);
+    CCMotion.countUp(tl, '#metric [data-value]', 0.3, { dur: 1.6 });
+    CCMotion.dataStagger(tl, '#kpis', 0.8, { from: 'scale', stagger: 0.15 });
+    CCMotion.countUp(tl, '#kpis [data-value]', 1.0, { dur: 1.3, stagger: 0.15 });
+    CCMotion.lineDraw(tl, '#kpis .cc-linechart', 1.1, { dur: 1.2, grid: false });
+    CCMotion.dataStagger(tl, '#prog', 1.8, { from: 'up' });
+    CCMotion.barGrow(tl, '#prog', 1.9, { dur: 1.1 });
+    CCMotion.dataStagger(tl, '#bars', 2.4, { from: 'left', stagger: 0.12 });
+    CCMotion.barGrow(tl, '#bars', 2.5, { stagger: 0.14 });
+    CCMotion.fadeUp && CCMotion.fadeUp(tl, '#src', 3.4);
+    tl.eventCallback('onUpdate', function () {
+      document.getElementById('scrub').value = Math.round(tl.progress() * 1000);
+    });
+  }
+
+  document.getElementById('play').onclick = function () { tl.progress() >= 1 ? tl.restart() : tl.play(); };
+  document.getElementById('scrub').oninput = function (e) { tl.pause(); tl.progress(e.target.value / 1000); };
+  document.getElementById('aspect').onclick = function () {
+    var on = stage.classList.toggle('cc-stage--16x9');
+    this.textContent = on ? 'Switch to 9:16' : 'Switch to 16:9';
+    fit(); build(); tl.progress(1);
+  };
+  window.addEventListener('resize', fit);
+
+  fit(); build(); tl.play();
+</script>
+</body>
+</html>

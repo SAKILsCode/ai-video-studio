@@ -1,0 +1,8 @@
+/* components.css — manifest only. Order matters: later files override earlier ones. */
+@import 'components/legacy.css';
+@import 'components/foundations.css';
+@import 'components/typography.css';
+@import 'components/tech-ui.css';
+@import 'components/diagrams.css';
+@import 'components/data.css';
+@import "./components/media.css";

@@ -1,0 +1,76 @@
+{
+  "contractVersion": 2,
+  "channelId": "ch01-basic-claude-copy",
+  "sceneName": "scene-template",
+  "aspect": "9x16",
+  "width": 1080,
+  "height": 1920,
+  "darkMode": false,
+  "bangla": true,
+  "stageClasses": ["cc-stage", "cc-stage--bn"],
+  "scripts": ["motion-presets.text.js"],
+  "tokens": {
+    "--paper-base": "#EEF1EB",
+    "--emerald-base": "#063D2A",
+    "--brand-primary": "#064E35",
+    "--brand-gold": "#E5A93C",
+    "--brand-coral": "#E5484D",
+    "--ink-dark": "#101A16",
+    "--ink-light": "#FFFFFF"
+  },
+  "elements": [
+    {
+      "id": "pill_1",
+      "label": "Top Context Pill",
+      "slot": "top",
+      "cc": "pill",
+      "variant": "cc-pill--gold",
+      "text": "✦ প্রসঙ্গ",
+      "inCam": true,
+      "anim": "fadeUp",
+      "delay": 0.05,
+      "duration": 0.45,
+      "exitAt": 2.6
+    },
+    {
+      "id": "title_1",
+      "label": "Hero Title",
+      "slot": "hero",
+      "cc": "title",
+      "variant": "cc-title--hero",
+      "text": "শিরোনাম এখানে",
+      "inCam": true,
+      "anim": "fadeUp",
+      "delay": 0.2,
+      "duration": 0.5,
+      "exitAt": 2.6
+    },
+    {
+      "id": "card_1",
+      "label": "Center Card",
+      "slot": "center",
+      "cc": "card",
+      "variant": "cc-card--white",
+      "text": "০১\nকার্ড শিরোনাম",
+      "inCam": true,
+      "anim": "popIn",
+      "delay": 0.6,
+      "duration": 0.55,
+      "exitAt": 2.6
+    },
+    {
+      "id": "cap_1",
+      "label": "Caption Phrase 1",
+      "slot": "caption",
+      "cc": "caption",
+      "variant": "",
+      "text": "প্রথম গুরুত্বপূর্ণ শব্দ",
+      "inCam": false,
+      "focalWords": { "1": "cc-word--gold" },
+      "wordTimes": [0.3, 0.65, 1.0],
+      "anim": "captionPhrase",
+      "delay": 0.3,
+      "duration": 0.45
+    }
+  ]
+}
