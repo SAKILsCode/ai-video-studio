@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <title>CH01 Visual Editor — Basic Claude Copy</title>
+  <link rel="stylesheet" href="./tokens.css" />
+  <link rel="stylesheet" href="./components.css" />
+  <link rel="stylesheet" href="./editor/editor-core.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="./motion-presets.js"></script>
+</head>
+<body>
+  <script>
+    window.CHANNEL_EDITOR_CONFIG = {
+      channelId: 'ch01-basic-claude-copy',
+      title: 'CH01: BASIC CLAUDE COPY',
+      stageClass: 'cc-stage',
+      darkClass: 'cc-stage--dark',
+      bnClass: 'cc-stage--bn',
+      wideClass: 'cc-stage--16x9',
+      stageBackdropHtml: '<div class="cc-lattice"></div><div class="cc-sparkle-dust"></div><div class="cc-vignette"></div>',
+      tokenMeta: {
+        '--paper-base': 'Light Paper Surface',
+        '--emerald-base': 'Dark Emerald Canvas',
+        '--brand-primary': 'Brand Primary Emerald',
+        '--brand-gold': 'Warm Amber Gold',
+        '--brand-coral': 'Alert / REC Coral',
+        '--ink-dark': 'Dark Ink',
+        '--ink-light': 'Light Ink'
+      },
+      defaultTokens: {
+        '--paper-base': '#EEF1EB',
+        '--emerald-base': '#063D2A',
+        '--brand-primary': '#064E35',
+        '--brand-gold': '#E5A93C',
+        '--brand-coral': '#E5484D',
+        '--ink-dark': '#101A16',
+        '--ink-light': '#FFFFFF'
+      },
+      fontChoices: [
+        { label: 'Hind Siliguri (Bangla Display)', value: "'Hind Siliguri', sans-serif" },
+        { label: 'Noto Sans Bengali (Bangla Body)', value: "'Noto Sans Bengali', sans-serif" },
+        { label: 'Space Grotesk (English Display)', value: "'Space Grotesk', sans-serif" },
+        { label: 'Plus Jakarta Sans (English Body)', value: "'Plus Jakarta Sans', sans-serif" },
+        { label: 'JetBrains Mono (Metrics / Tags)', value: "'JetBrains Mono', monospace" },
+        { label: 'Amiri (Arabic)', value: "'Amiri', serif" }
+      ],
+      defaultItems: [
+        {
+          id: 'pill_1', label: 'Top Context Pill', text: '✦ ২টি মডিউল একসাথে',
+          x: 184, y: 136, w: 460, h: 72, z: 4,
+          fontFamily: "'Hind Siliguri', sans-serif", fontSize: 28, fontWeight: '700',
+          color: '#FFFFFF', bg: '#064E35', radius: 999, padding: 12, align: 'center',
+          anim: 'fadeUp', delay: 0.05, duration: 0.45
+        },
+        {
+          id: 'card_1', label: 'Feature Card Left', text: '০১\nমূল কনসেপ্ট',
+          x: 72, y: 360, w: 448, h: 520, z: 3,
+          fontFamily: "'Hind Siliguri', sans-serif", fontSize: 48, fontWeight: '700',
+          color: '#FFFFFF', bg: '#064E35', radius: 28, padding: 32, align: 'center',
+          border: '10px solid #FFFFFF', shadow: '0 24px 48px rgba(6,36,24,0.18)',
+          anim: 'popCard', delay: 0.15, duration: 0.55
+        },
+        {
+          id: 'card_2', label: 'Feature Card Right', text: '০২\nবাস্তব প্রয়োগ',
+          x: 560, y: 360, w: 448, h: 520, z: 3,
+          fontFamily: "'Hind Siliguri', sans-serif", fontSize: 48, fontWeight: '700',
+          color: '#FFFFFF', bg: '#064E35', radius: 28, padding: 32, align: 'center',
+          border: '10px solid #FFFFFF', shadow: '0 24px 48px rgba(6,36,24,0.18)',
+          anim: 'popCard', delay: 0.35, duration: 0.55
+        },
+        {
+          id: 'bridge_1', label: 'Gold Ribbon Bridge', text: 'একসাথে সম্পূর্ণ রোডম্যাপ',
+          x: 56, y: 584, w: 968, h: 80, z: 6,
+          fontFamily: "'Hind Siliguri', sans-serif", fontSize: 32, fontWeight: '700',
+          color: '#101A16', bg: '#E5A93C', radius: 18, padding: 14, align: 'center',
+          shadow: '0 14px 32px rgba(229,169,60,0.38)',
+          anim: 'sweepX', delay: 0.85, duration: 0.48
+        },
+        {
+          id: 'cap_1', label: 'Caption Text', text: 'একটি পদ্ধতিতে স্পষ্ট ধারণা আর দ্রুত বাস্তবায়ন',
+          x: 72, y: 1296, w: 936, h: 192, z: 7,
+          fontFamily: "'Hind Siliguri', sans-serif", fontSize: 58, fontWeight: '700',
+          color: '#101A16', bg: 'transparent', radius: 0, padding: 8, align: 'center',
+          anim: 'fadeUp', delay: 0.25, duration: 0.45
+        }
+      ],
+      shelfTemplates: [
+        {
+          label: 'Editorial Headline', text: 'নতুন শিরোনাম লিখুন',
+          x: 100, y: 260, w: 880, h: 140,
+          fontFamily: "'Hind Siliguri', sans-serif", fontSize: 60, fontWeight: '700',
+          color: '#101A16', bg: 'transparent', radius: 0, padding: 8, align: 'center',
+          anim: 'fadeUp', delay: 0.2, duration: 0.45
+        },
+        {
+          label: 'Emerald Feature Card', text: 'কার্ড শিরোনাম',
+          x: 160, y: 420, w: 420, h: 460,
+          fontFamily: "'Hind Siliguri', sans-serif", fontSize: 40, fontWeight: '700',
+          color: '#FFFFFF', bg: '#064E35', radius: 26, padding: 28, align: 'center',
+          border: '8px solid #FFFFFF', shadow: '0 20px 44px rgba(6,36,24,0.18)',
+          anim: 'popCard', delay: 0.2, duration: 0.5
+        },
+        {
+          label: 'White Breakdown Row', text: 'ধাপ ০১ — পরিষ্কার বিশ্লেষণ',
+          x: 120, y: 640, w: 840, h: 104,
+          fontFamily: "'Hind Siliguri', sans-serif", fontSize: 32, fontWeight: '700',
+          color: '#101A16', bg: '#FFFFFF', radius: 18, padding: 20, align: 'left',
+          shadow: '0 12px 28px rgba(0,0,0,0.14)',
+          anim: 'slideLeft', delay: 0.2, duration: 0.45
+        },
+        {
+          label: 'Gold Highlight Ribbon', text: 'গুরুত্বপূর্ণ হাইলাইট',
+          x: 140, y: 820, w: 800, h: 76,
+          fontFamily: "'Hind Siliguri', sans-serif", fontSize: 30, fontWeight: '700',
+          color: '#101A16', bg: '#E5A93C', radius: 16, padding: 12, align: 'center',
+          anim: 'sweepX', delay: 0.4, duration: 0.45
+        },
+        {
+          label: 'Coral Urgency / REC Pill', text: '● REC · ২০০ ঘন্টা',
+          x: 680, y: 240, w: 300, h: 64,
+          fontFamily: "'Hind Siliguri', sans-serif", fontSize: 26, fontWeight: '700',
+          color: '#FFFFFF', bg: '#E5484D', radius: 999, padding: 10, align: 'center',
+          anim: 'popCard', delay: 0.3, duration: 0.4
+        }
+      ]
+    };
+  </script>
+  <script src="./editor/editor-core.js"></script>
+</body>
+</html>

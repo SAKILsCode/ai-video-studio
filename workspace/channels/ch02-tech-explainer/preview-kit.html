@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CH02: Tech Explainer — Preview Kit (EN + BN)</title>
+  <link rel="stylesheet" href="./tokens.css" />
+  <link rel="stylesheet" href="./components.css" />
+  <style>
+    body { background: #04090b; color: #f4f8f8; font-family: var(--font-body); min-height: 100vh; display: flex; flex-direction: column; }
+    .toolbar { position: sticky; top: 0; z-index: 100; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 24px; background: rgba(12, 25, 28, 0.95); border-bottom: 1px solid rgba(244,248,248,0.1); }
+    .toolbar h1 { font-family: var(--font-display); font-size: 16px; }
+    .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .btn { padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(244,248,248,0.16); background: rgba(244,248,248,0.06); color: #f4f8f8; font-family: var(--font-mono); font-size: 12px; cursor: pointer; }
+    .btn.active { background: var(--accent-aqua); color: #051114; border-color: transparent; font-weight: 700; }
+    .workspace { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding: 28px; gap: 32px; flex-wrap: wrap; }
+    .frame-shell { position: relative; border-radius: 16px; overflow: hidden; box-shadow: 0 30px 90px rgba(0,0,0,0.8), 0 0 0 1px rgba(244,248,248,0.14); }
+    .frame-shell.mode-9x16 { width: 405px; height: 720px; }
+    .frame-shell.mode-16x9 { width: 960px; height: 540px; }
+    .stage-scaler { transform-origin: top left; }
+    .mode-9x16 .stage-scaler { width: 1080px; height: 1920px; transform: scale(0.375); }
+    .mode-16x9 .stage-scaler { width: 1920px; height: 1080px; transform: scale(0.5); }
+    .safe-guides { display: none; position: absolute; inset: 0; z-index: 20; pointer-events: none; }
+    .show-guides .safe-guides { display: block; }
+    .safe-guides::before { content: 'TOP SAFE (190px)'; position: absolute; top: 0; left: 0; right: 0; height: 190px; background: rgba(242,123,88,0.14); border-bottom: 2px dashed rgba(242,123,88,0.8); display: grid; place-items: center; font: 700 20px var(--font-mono); color: #fecaca; }
+    .safe-guides::after { content: 'BOTTOM SAFE / CAPTION ZONE (340px)'; position: absolute; bottom: 0; left: 0; right: 0; height: 340px; background: rgba(234,179,56,0.12); border-top: 2px dashed rgba(234,179,56,0.8); display: grid; place-items: center; font: 700 20px var(--font-mono); color: #fde68a; }
+    .sidebar { width: 350px; display: flex; flex-direction: column; gap: 14px; font-size: 13px; color: var(--ink-secondary); }
+    .swatch-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .swatch { height: 42px; border-radius: 8px; border: 1px solid rgba(244,248,248,0.16); display: grid; place-items: end center; padding-bottom: 4px; font: 700 10px var(--font-mono); }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <h1>CH02: TECH EXPLAINER — PREVIEW KIT</h1>
+    <div class="controls">
+      <button id="btn9" class="btn active" onclick="setMode('9x16')">9:16</button>
+      <button id="btn16" class="btn" onclick="setMode('16x9')">16:9</button>
+      <button id="btnEn" class="btn active" onclick="setLang('en')">English</button>
+      <button id="btnBn" class="btn" onclick="setLang('bn')">বাংলা</button>
+      <button class="btn" onclick="toggleGuides(this)">Safe Zones</button>
+      <label class="btn" style="background: rgba(34,229,240,0.16); border-color: rgba(34,229,240,0.5);">
+        Load Media
+        <input type="file" accept="image/*,video/*" hidden onchange="loadMedia(event)" />
+      </label>
+    </div>
+  </div>
+
+  <div class="workspace">
+    <div id="shell" class="frame-shell mode-9x16">
+      <div class="stage-scaler tx-stage" id="stage">
+        <div class="tx-backdrop-grid"></div>
+        <div class="tx-camera" id="mediaSlot"></div>
+
+        <div class="tx-hud-layer">
+          <div style="display:flex;flex-direction:column;gap:20px;">
+            <div id="pill" class="tx-pill tx-pill--aqua">
+              <span class="tx-pill__dot"></span>
+              <span id="pillText">GATE 1 · PIPELINE CHECK</span>
+            </div>
+            <div id="headline" class="tx-headline">
+              Clean <span class="tx-headline__aqua">System</span> Logic<br/>Without Clutter.
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:18px;">
+            <div class="tx-card">
+              <div id="kicker1" class="tx-card__kicker">LINE-BY-LINE BREAKDOWN</div>
+              <div class="tx-lines">
+                <div class="tx-line-row tx-line-row--active">
+                  <span>01 · Parse Input &amp; Guard</span>
+                  <span class="tx-line-row__tag">PASS</span>
+                </div>
+                <div class="tx-line-row">
+                  <span>02 · State Transition</span>
+                  <span class="tx-line-row__tag">ACTIVE</span>
+                </div>
+              </div>
+              <div id="kicker2" class="tx-card__kicker" style="margin-top:4px;">STATE TRANSITIONS</div>
+              <div class="tx-states">
+                <span class="tx-state-node">IDLE</span>
+                <span class="tx-state-arrow">→</span>
+                <span class="tx-state-node tx-state-node--active">RUN</span>
+                <span class="tx-state-arrow">→</span>
+                <span class="tx-state-node">DONE</span>
+              </div>
+            </div>
+
+            <div class="tx-stat-row">
+              <span class="tx-stat__value">90%</span>
+              <span id="statLabel" class="tx-stat__label">DELIVERY REJECTED · 36.86s TOTAL DURATION</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="captionDock" class="tx-caption-dock">
+          <span class="tx-word">Clean</span>
+          <span class="tx-word tx-word--active">tech</span>
+          <span class="tx-word">flow</span>
+          <span class="tx-word">every</span>
+          <span class="tx-word">step</span>
+        </div>
+
+        <div class="tx-vignette"></div>
+        <div class="tx-grain"></div>
+        <div class="safe-guides"></div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <strong>Palette</strong>
+      <div class="swatch-row">
+        <div class="swatch" style="background:#22E5F0;color:#051114;">AQUA</div>
+        <div class="swatch" style="background:#F27B58;color:#051114;">CORAL</div>
+        <div class="swatch" style="background:#7CE39A;color:#051114;">MINT</div>
+        <div class="swatch" style="background:#EAB338;color:#051114;">OCHRE</div>
+      </div>
+      <p>Switch <strong>9:16 / 16:9</strong> and <strong>English / বাংলা</strong> to inspect typography spacing and safe zones before generating clips or running Flash.</p>
+    </div>
+  </div>
+
+  <script>
+    const copy = {
+      en: {
+        pill: 'GATE 1 · PIPELINE CHECK',
+        headline: 'Clean <span class="tx-headline__aqua">System</span> Logic<br/>Without Clutter.',
+        kicker1: 'LINE-BY-LINE BREAKDOWN',
+        kicker2: 'STATE TRANSITIONS',
+        statLabel: 'DELIVERY REJECTED · 36.86s TOTAL DURATION',
+        words: ['Clean', 'tech', 'flow', 'every', 'step'],
+        activeIdx: 1
+      },
+      bn: {
+        pill: 'গেট ১ · পাইপলাইন যাচাই',
+        headline: 'পরিষ্কার <span class="tx-headline__aqua">সিস্টেম</span> ব্যাখ্যা<br/>সহজ ও স্পষ্টভাবে',
+        kicker1: 'ধাপে ধাপে বিশ্লেষণ',
+        kicker2: 'স্টেট পরিবর্তন',
+        statLabel: 'ডেলিভারি বাতিল · ৩৬.৮৬ সেকেন্ড মোট সময়',
+        words: ['সহজ', 'প্রযুক্তি', 'ধাপে', 'ধাপে', 'স্পষ্ট'],
+        activeIdx: 1
+      }
+    };
+
+    function setMode(mode) {
+      const shell = document.getElementById('shell');
+      const stage = document.getElementById('stage');
+      const keepGuides = shell.classList.contains('show-guides');
+      shell.className = 'frame-shell mode-' + mode + (keepGuides ? ' show-guides' : '');
+      stage.classList.toggle('tx-stage--16x9', mode === '16x9');
+      document.getElementById('btn9').classList.toggle('active', mode === '9x16');
+      document.getElementById('btn16').classList.toggle('active', mode === '16x9');
+    }
+
+    function setLang(lang) {
+      const stage = document.getElementById('stage');
+      stage.classList.toggle('tx-stage--bn', lang === 'bn');
+      document.getElementById('btnEn').classList.toggle('active', lang === 'en');
+      document.getElementById('btnBn').classList.toggle('active', lang === 'bn');
+      const d = copy[lang];
+      document.getElementById('pillText').textContent = d.pill;
+      document.getElementById('headline').innerHTML = d.headline;
+      document.getElementById('kicker1').textContent = d.kicker1;
+      document.getElementById('kicker2').textContent = d.kicker2;
+      document.getElementById('statLabel').textContent = d.statLabel;
+      document.getElementById('captionDock').innerHTML = d.words
+        .map((w, i) => `<span class="tx-word ${i === d.activeIdx ? 'tx-word--active' : ''}">${w}</span>`)
+        .join('');
+    }
+
+    function toggleGuides(btn) {
+      document.getElementById('shell').classList.toggle('show-guides');
+      btn.classList.toggle('active');
+    }
+
+    function loadMedia(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      const slot = document.getElementById('mediaSlot');
+      slot.innerHTML = file.type.startsWith('video/')
+        ? `<video class="tx-plate-media" src="${url}" autoplay loop muted playsinline></video>`
+        : `<img class="tx-plate-media" src="${url}" />`;
+    }
+  </script>
+</body>
+</html>

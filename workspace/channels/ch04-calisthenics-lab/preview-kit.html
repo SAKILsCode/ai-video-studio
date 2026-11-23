@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CH04: Calisthenics Lab — Preview Kit</title>
+  <link rel="stylesheet" href="./tokens.css" />
+  <link rel="stylesheet" href="./components.css" />
+  <style>
+    body { background: #0d1014; color: #fff; display: flex; flex-direction: column; align-items: center; padding: 20px; gap: 16px; font-family: var(--font-body); }
+    .controls { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn { padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: #1c2128; color: #fff; cursor: pointer; font-weight: 600; }
+    .shell { width: 405px; height: 720px; border-radius: 16px; overflow: hidden; box-shadow: 0 24px 70px rgba(0,0,0,0.7); }
+    .scaler { width: 1080px; height: 1920px; transform: scale(0.375); transform-origin: top left; }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <label class="btn">
+      Load Character / Pose PNG
+      <input type="file" accept="image/*,video/*" hidden onchange="loadPose(event)" />
+    </label>
+  </div>
+  <div class="shell">
+    <div class="scaler cl-stage">
+      <div class="cl-caption-top">
+        Pushups <span class="cl-word--active">50 to 100</span> a day
+      </div>
+      <div class="cl-rep-badge">
+        <span class="cl-rep-badge__num">50–100</span>
+        <span class="cl-rep-badge__sub">reps / day</span>
+      </div>
+      <div id="poseSlot" class="cl-character-layer"></div>
+      <div class="cl-callout-tag" style="top: 56%; right: 72px;">CHEST · TRICEPS</div>
+      <div class="cl-notepad">
+        <div class="cl-notepad__title">FULL DAY, NO GYM</div>
+        <div class="cl-notepad__item"><span>Push-ups 50–100</span><span>✓</span></div>
+        <div class="cl-notepad__item"><span>Squats 100</span><span>•</span></div>
+        <div class="cl-notepad__item"><span>Lunges 50</span><span>•</span></div>
+        <div class="cl-notepad__item"><span>Pull-ups 20</span><span>•</span></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function loadPose(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      document.getElementById('poseSlot').innerHTML = file.type.startsWith('video/')
+        ? `<video class="cl-plate" src="${url}" autoplay loop muted playsinline></video>`
+        : `<img class="cl-character-sprite" src="${url}" />`;
+    }
+  </script>
+</body>
+</html>

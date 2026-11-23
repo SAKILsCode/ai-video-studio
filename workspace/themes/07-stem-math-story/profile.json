@@ -1,0 +1,18 @@
+{
+  "theme_id": "07-stem-math-story",
+  "renderer": "hybrid",
+  "aspect_ratios": [
+    "16:9",
+    "9:16"
+  ],
+  "pacing_mode": "pedagogical",
+  "audio_preset": "story-ambient",
+  "lufs_voice": -16,
+  "lufs_bgm": -28,
+  "sfx_cap_db_below_voice": 18,
+  "captions": "selective",
+  "character_tier": "tier-1-chalk-sprites-or-flow",
+  "automation_fit": [
+    "mode-a-studio"
+  ]
+}

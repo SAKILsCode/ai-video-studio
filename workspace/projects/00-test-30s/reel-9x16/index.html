@@ -1,0 +1,1360 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>The Blood-Brain Barrier (BBB) — 09 Cloned Flagship</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,700;1,800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --canvas-bg: #F2F2F2;
+        --canvas-spotlight: radial-gradient(ellipse 960px 1140px at 50% 38%, #FFFFFF 0%, #F2F2F2 65%, #E5E5EB 100%);
+        --text-primary: #161616;
+        --text-secondary: #737373;
+        --text-muted: #8E8E93;
+        --text-ghost: #C7C7CC;
+        --accent-clay: #D77656;
+        --accent-emerald: #10B981;
+        --accent-crimson: #EF4444;
+        --accent-cyan: #06B6D4;
+        --accent-blue: #3B82F6;
+        --dark-surface: #161618;
+        --dark-card: #202024;
+        --dark-border: rgba(255, 255, 255, 0.10);
+        --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        --font-mono: 'JetBrains Mono', monospace;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html, body {
+        margin: 0;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: var(--canvas-bg);
+        font-family: var(--font-main);
+        user-select: none;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      #root {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: var(--canvas-spotlight);
+      }
+
+      /* ========================================================
+         TECHNICAL COORDINATE GRID (MATCHING FRAME 001 & 076)
+         ======================================================== */
+      .grid-layer {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.55;
+        z-index: 1;
+      }
+
+      /* ========================================================
+         TACTILE 3D CERAMIC PUCKS & TERRACOTTA CORNER ACCENTS
+         ======================================================== */
+      #props-layer {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 2;
+        opacity: 1;
+      }
+      .corner-splat {
+        position: absolute;
+        pointer-events: none;
+        z-index: 2;
+        filter: drop-shadow(0 16px 28px rgba(215, 118, 86, 0.22));
+      }
+      .corner-splat-tr {
+        top: -60px;
+        right: -60px;
+        width: 320px;
+        height: 320px;
+      }
+      .corner-splat-bl {
+        bottom: -60px;
+        left: -60px;
+        width: 320px;
+        height: 320px;
+      }
+
+      .ceramic-puck {
+        position: absolute;
+        width: 170px;
+        height: 170px;
+        border-radius: 50%;
+        background: #FFFFFF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow:
+          inset 0 4px 6px rgba(255, 255, 255, 0.9),
+          inset 0 -6px 8px rgba(0, 0, 0, 0.08),
+          0 14px 28px rgba(0, 0, 0, 0.10),
+          0 28px 56px rgba(0, 0, 0, 0.07);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        z-index: 3;
+        pointer-events: none;
+      }
+      .ceramic-puck-tl {
+        top: 110px;
+        left: 70px;
+      }
+      .ceramic-puck-br {
+        top: 1560px;
+        right: 60px;
+      }
+      .ceramic-puck svg {
+        width: 100px;
+        height: 100px;
+      }
+
+      /* ========================================================
+         MASTER CAMERA WRAPPER
+         ======================================================== */
+      #camera {
+        position: absolute;
+        inset: 0;
+        z-index: 10;
+        transform-origin: 540px 960px;
+      }
+
+      /* ========================================================
+         SCENE CONTAINERS
+         ======================================================== */
+      .scene {
+        position: absolute;
+        inset: 0;
+        width: 1080px;
+        height: 1920px;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      /* ========================================================
+         TYPOGRAPHY UTILITIES
+         ======================================================== */
+      .sub-lead {
+        font-size: 46px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        letter-spacing: -0.025em;
+        text-align: center;
+        margin-bottom: 6px;
+      }
+      .main-title {
+        font-size: 78px;
+        font-weight: 900;
+        color: var(--text-primary);
+        letter-spacing: -0.035em;
+        line-height: 1.08;
+        text-align: center;
+      }
+      .hero-title {
+        font-size: 88px;
+        font-weight: 900;
+        color: var(--text-primary);
+        letter-spacing: -0.04em;
+        line-height: 1.05;
+        text-align: center;
+      }
+
+      .black-pill-badge {
+        display: inline-block;
+        background: #141416;
+        color: #FFFFFF;
+        font-size: 52px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        padding: 12px 36px;
+        border-radius: 14px;
+        box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.25);
+        margin-top: 24px;
+      }
+
+      /* ========================================================
+         FLOATING DEVICE STAGE (MATCHING TABLET FRAME MOCKUP)
+         ======================================================== */
+      .stage-outer {
+        position: absolute;
+        top: 370px;
+        left: 100px;
+        width: 880px;
+        background: #FFFFFF;
+        border-radius: 30px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        box-shadow:
+          0 4px 6px -1px rgba(0, 0, 0, 0.04),
+          0 16px 32px -4px rgba(0, 0, 0, 0.12),
+          0 40px 80px -10px rgba(0, 0, 0, 0.10);
+        overflow: hidden;
+        padding: 14px;
+      }
+      .stage-inner {
+        width: 100%;
+        background: var(--dark-surface);
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid var(--dark-border);
+      }
+      .stage-header {
+        height: 52px;
+        background: #1D1D21;
+        border-bottom: 1px solid var(--dark-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+      }
+      .stage-dots {
+        display: flex;
+        gap: 8px;
+      }
+      .stage-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.22);
+      }
+      .stage-title {
+        font-family: var(--font-mono);
+        font-size: 19px;
+        font-weight: 600;
+        color: #A1A1AA;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .stage-status-badge {
+        font-family: var(--font-mono);
+        font-size: 16px;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 6px;
+        background: rgba(16, 185, 129, 0.18);
+        color: #34D399;
+        border: 1px solid rgba(16, 185, 129, 0.35);
+      }
+      .stage-body {
+        padding: 26px;
+        color: #FFFFFF;
+        min-height: 440px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      /* ========================================================
+         TACTILE 3D MCP PILL BADGE (MATCHING FRAME 007)
+         ======================================================== */
+      .tactile-mcp-badge {
+        display: inline-flex;
+        align-items: center;
+        background: #FFFFFF;
+        border-radius: 22px;
+        padding: 10px 28px 10px 12px;
+        box-shadow:
+          0 2px 4px rgba(0, 0, 0, 0.04),
+          0 12px 24px -4px rgba(0, 0, 0, 0.16),
+          0 28px 56px -8px rgba(0, 0, 0, 0.12);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+      }
+      .tactile-mcp-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        background: #18181B;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 18px;
+      }
+      .tactile-mcp-text {
+        font-family: var(--font-main);
+        font-size: 32px;
+        font-weight: 800;
+        color: var(--text-primary);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      /* ========================================================
+         STAGGERED FEATURE BULLETS (✦)
+         ======================================================== */
+      .bullet-group {
+        position: absolute;
+        top: 960px;
+        left: 100px;
+        width: 880px;
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+        padding: 0 20px;
+      }
+      .bullet-item {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        font-size: 42px;
+        font-weight: 700;
+        color: var(--text-primary);
+        letter-spacing: -0.025em;
+      }
+      .bullet-sparkle {
+        font-size: 34px;
+        color: var(--text-primary);
+        line-height: 1;
+        flex-shrink: 0;
+      }
+
+      /* ========================================================
+         KARAOKE HUD SUBTITLE ZONE (SAFE ZONE: 1400px - 1520px)
+         ======================================================== */
+      #karaoke-hud {
+        position: absolute;
+        top: 1400px;
+        left: 100px;
+        width: 880px;
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        z-index: 50;
+        pointer-events: none;
+      }
+      .karaoke-line {
+        position: absolute;
+        width: 100%;
+        font-size: 40px;
+        line-height: 1.35;
+        letter-spacing: -0.02em;
+        color: var(--text-muted);
+        font-weight: 500;
+        opacity: 0;
+      }
+      .k-word {
+        display: inline-block;
+      }
+      .k-word.active {
+        color: var(--text-primary);
+        font-weight: 800;
+      }
+
+      /* ========================================================
+         WATERMARK (TITLE-SAFE ZONE: 1550px)
+         ======================================================== */
+      #watermark {
+        position: absolute;
+        top: 1550px;
+        left: 0;
+        width: 1080px;
+        text-align: center;
+        font-size: 28px;
+        font-weight: 500;
+        color: #B0B0B8;
+        opacity: 0.45;
+        letter-spacing: -0.01em;
+        z-index: 50;
+        pointer-events: none;
+      }
+
+      /* ========================================================
+         COMPONENT: GRAIN OVERLAY
+         ======================================================== */
+      #grain-overlay {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 90;
+        mix-blend-mode: multiply;
+        opacity: 0.035;
+      }
+      @keyframes hf-grain-noise {
+        0%, 100% { transform: translate(0, 0); }
+        10% { transform: translate(-5%, -5%); }
+        20% { transform: translate(-10%, 5%); }
+        30% { transform: translate(5%, -10%); }
+        40% { transform: translate(-5%, 15%); }
+        50% { transform: translate(-10%, 5%); }
+        60% { transform: translate(15%, 0); }
+        70% { transform: translate(0, 10%); }
+        80% { transform: translate(-15%, 0); }
+        90% { transform: translate(10%, 5%); }
+      }
+      #grain-overlay .grain-texture {
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        animation: hf-grain-noise 0.5s steps(1) infinite;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="36.858" data-width="1080" data-height="1920">
+      
+      <!-- LAYER 0: TECHNICAL COORDINATE GRID -->
+      <svg class="grid-layer" width="1080" height="1920" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="coord-grid" width="72" height="72" patternUnits="userSpaceOnUse">
+            <line x1="0" y1="0" x2="72" y2="0" stroke="#D1D1D6" stroke-width="1" stroke-dasharray="2,4" />
+            <line x1="0" y1="0" x2="0" y2="72" stroke="#D1D1D6" stroke-width="1" stroke-dasharray="2,4" />
+            <circle cx="0" cy="0" r="2.5" fill="#B0B0B8" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#coord-grid)" />
+      </svg>
+
+      <!-- LAYER 1: TACTILE CORNER ASSETS (ACTIVE ON BOOKEND SCENES 0 & 7) -->
+      <div id="props-layer">
+        <!-- Top-Right Terracotta Petal Splat -->
+        <svg class="corner-splat corner-splat-tr" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M120 0C120 40 140 70 170 85L200 100V0H120Z" fill="#D77656" />
+          <path d="M70 20C95 50 135 65 170 80C140 110 120 150 110 190L130 200C145 155 175 115 200 90V40C165 40 130 25 100 0H70L70 20Z" fill="#D77656" />
+          <path d="M140 0L190 60C195 40 198 20 200 0H140Z" fill="#D77656" />
+        </svg>
+
+        <!-- Bottom-Left Terracotta Petal Splat -->
+        <svg class="corner-splat corner-splat-bl" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0 120C40 120 70 140 85 170L100 200H0V120Z" fill="#D77656" />
+          <path d="M20 70C50 95 65 135 80 170C110 140 150 120 190 110L200 130C155 145 115 175 90 200H40C40 165 25 130 0 100V70L20 70Z" fill="#D77656" />
+        </svg>
+
+        <!-- Ceramic 3D Puck Top-Left -->
+        <div id="puck-tl" class="ceramic-puck ceramic-puck-tl">
+          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="50" y1="12" x2="50" y2="88" stroke="#D77656" stroke-width="9" stroke-linecap="round" />
+            <line x1="12" y1="50" x2="88" y2="50" stroke="#D77656" stroke-width="9" stroke-linecap="round" />
+            <line x1="23" y1="23" x2="77" y2="77" stroke="#D77656" stroke-width="9" stroke-linecap="round" />
+            <line x1="23" y1="77" x2="77" y2="23" stroke="#D77656" stroke-width="9" stroke-linecap="round" />
+            <circle cx="50" cy="50" r="10" fill="#FFFFFF" />
+            <circle cx="50" cy="50" r="5" fill="#D77656" />
+          </svg>
+        </div>
+
+        <!-- Ceramic 3D Puck Bottom-Right -->
+        <div id="puck-br" class="ceramic-puck ceramic-puck-br">
+          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="50" y1="12" x2="50" y2="88" stroke="#D77656" stroke-width="9" stroke-linecap="round" />
+            <line x1="12" y1="50" x2="88" y2="50" stroke="#D77656" stroke-width="9" stroke-linecap="round" />
+            <line x1="23" y1="23" x2="77" y2="77" stroke="#D77656" stroke-width="9" stroke-linecap="round" />
+            <line x1="23" y1="77" x2="77" y2="23" stroke="#D77656" stroke-width="9" stroke-linecap="round" />
+            <circle cx="50" cy="50" r="10" fill="#FFFFFF" />
+            <circle cx="50" cy="50" r="5" fill="#D77656" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- MASTER CAMERA WRAPPER -->
+      <div id="camera">
+
+        <!-- ========================================================
+             SCENE 0: HOOK (0.000s - 3.840s)
+             "Why do almost all brain medicines completely fail?"
+             ======================================================== -->
+        <div id="scene-0" class="scene">
+          <div style="position: absolute; top: 620px; left: 0; width: 1080px; text-align: center;">
+            <div id="s0-lead" class="sub-lead">why do almost all</div>
+            <div id="s0-title" class="hero-title" style="margin-top: 6px;">Brain Medicines</div>
+            <div>
+              <div id="s0-badge" class="black-pill-badge">[ completely fail? ]</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================
+             SCENE 1: THE CELLULAR WALL (4.060s - 8.356s)
+             "Inside your skull sits a locked wall of endothelial cells."
+             ======================================================== -->
+        <div id="scene-1" class="scene">
+          <div style="position: absolute; top: 200px; left: 0; width: 1080px;">
+            <div class="sub-lead">inside your skull sits a</div>
+            <div class="main-title">Locked Cellular Wall</div>
+          </div>
+
+          <!-- Floating Tablet Device Stage -->
+          <div class="stage-outer">
+            <div class="stage-inner">
+              <div class="stage-header" data-layout-ignore="true">
+                <div class="stage-dots">
+                  <div class="stage-dot"></div><div class="stage-dot"></div><div class="stage-dot"></div>
+                </div>
+                <div class="stage-title">CRANIAL MICROVESSEL // ARCHITECTURE</div>
+                <div class="stage-status-badge">SEALED</div>
+              </div>
+              <div class="stage-body">
+                <!-- Lumen Channel (Blood) -->
+                <div style="background: rgba(239, 68, 68, 0.08); border: 1px dashed rgba(239, 68, 68, 0.35); border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;" data-layout-ignore="true">
+                  <div style="display: flex; align-items: center; gap: 14px;">
+                    <span style="font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: #F87171;">LUMEN:</span>
+                    <span style="font-size: 20px; color: #E4E4E7; font-weight: 500;">Systemic Blood Flow</span>
+                  </div>
+                  <div style="display: flex; gap: 10px;">
+                    <div style="width: 22px; height: 22px; border-radius: 50%; background: #EF4444; opacity: 0.85;"></div>
+                    <div style="width: 18px; height: 18px; border-radius: 50%; background: #DC2626; opacity: 0.85;"></div>
+                    <div style="width: 26px; height: 26px; border-radius: 50%; background: #B91C1C; opacity: 0.85;"></div>
+                  </div>
+                </div>
+
+                <!-- Endothelial Barrier Layer -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 20px;">
+                  <div style="background: #222228; border: 1px solid rgba(6, 182, 212, 0.4); border-radius: 12px; padding: 22px 16px; text-align: center;">
+                    <div style="font-family: var(--font-mono); font-size: 16px; color: #06B6D4; font-weight: 700;" data-layout-ignore="true">CELL 01</div>
+                    <div style="font-size: 28px; font-weight: 700; color: #FFFFFF; margin-top: 6px;">Endothelial</div>
+                    <div style="font-size: 18px; color: #A1A1AA; margin-top: 4px;" data-layout-ignore="true">Hermetic Membrane</div>
+                  </div>
+                  <div style="background: #222228; border: 1px solid rgba(6, 182, 212, 0.4); border-radius: 12px; padding: 22px 16px; text-align: center;">
+                    <div style="font-family: var(--font-mono); font-size: 16px; color: #06B6D4; font-weight: 700;" data-layout-ignore="true">CELL 02</div>
+                    <div style="font-size: 28px; font-weight: 700; color: #FFFFFF; margin-top: 6px;">Endothelial</div>
+                    <div style="font-size: 18px; color: #A1A1AA; margin-top: 4px;" data-layout-ignore="true">Zero Fenestrations</div>
+                  </div>
+                  <div style="background: #222228; border: 1px solid rgba(6, 182, 212, 0.4); border-radius: 12px; padding: 22px 16px; text-align: center;">
+                    <div style="font-family: var(--font-mono); font-size: 16px; color: #06B6D4; font-weight: 700;" data-layout-ignore="true">CELL 03</div>
+                    <div style="font-size: 28px; font-weight: 700; color: #FFFFFF; margin-top: 6px;">Endothelial</div>
+                    <div style="font-size: 18px; color: #A1A1AA; margin-top: 4px;" data-layout-ignore="true">Tight Monolayer</div>
+                  </div>
+                </div>
+
+                <!-- Brain Parenchyma Layer -->
+                <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;" data-layout-ignore="true">
+                  <div style="display: flex; align-items: center; gap: 14px;">
+                    <span style="font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: #34D399;">PARENCHYMA:</span>
+                    <span style="font-size: 20px; color: #E4E4E7; font-weight: 500;">Protected Neural Matrix</span>
+                  </div>
+                  <span style="font-family: var(--font-mono); font-size: 18px; color: #34D399; font-weight: 700;">100% ISOLATED</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature Bullets (✦) -->
+          <div class="bullet-group">
+            <div id="s1-b1" class="bullet-item">
+              <span class="bullet-sparkle">✦</span>
+              <span>Continuous endothelial monolayer</span>
+            </div>
+            <div id="s1-b2" class="bullet-item">
+              <span class="bullet-sparkle">✦</span>
+              <span>400 miles of protected capillaries</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================
+             SCENE 2: BLOOD BRAIN BARRIER REVEAL (8.576s - 12.872s)
+             "Scientists call this cellular fortress the Blood Brain Barrier."
+             ======================================================== -->
+        <div id="scene-2" class="scene">
+          <div style="position: absolute; top: 200px; left: 0; width: 1080px;">
+            <div class="sub-lead">scientists call this cellular fortress</div>
+            <div class="main-title">The Blood-Brain Barrier</div>
+          </div>
+
+          <!-- Center Stage with Tactile Pill Badge Slam -->
+          <div class="stage-outer">
+            <div class="stage-inner">
+              <div class="stage-header" data-layout-ignore="true">
+                <div class="stage-dots">
+                  <div class="stage-dot"></div><div class="stage-dot"></div><div class="stage-dot"></div>
+                </div>
+                <div class="stage-title">PHYSIOLOGICAL FORTRESS</div>
+                <div class="stage-status-badge">SEALED</div>
+              </div>
+              <div class="stage-body" style="align-items: center; justify-content: center; text-align: center; gap: 24px;">
+                <!-- Tactile MCP Pill Badge -->
+                <div id="s2-mcp-badge" class="tactile-mcp-badge">
+                  <div class="tactile-mcp-icon">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#D77656" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                  </div>
+                  <div class="tactile-mcp-text">BLOOD-BRAIN BARRIER</div>
+                </div>
+
+                <div style="display: flex; gap: 20px; width: 100%; justify-content: center;">
+                  <div style="background: #202026; border-radius: 14px; padding: 18px 20px; border: 1px solid var(--dark-border); flex: 1;">
+                    <div style="font-family: var(--font-mono); font-size: 16px; color: #A1A1AA;" data-layout-ignore="true">ELECTRICAL TIGHTNESS</div>
+                    <div style="font-size: 32px; font-weight: 800; color: #FFFFFF; margin-top: 4px;">&gt; 1,500 Ω·cm²</div>
+                  </div>
+                  <div style="background: #202026; border-radius: 14px; padding: 18px 20px; border: 1px solid var(--dark-border); flex: 1;">
+                    <div style="font-family: var(--font-mono); font-size: 16px; color: #A1A1AA;" data-layout-ignore="true">PARACELLULAR FLOW</div>
+                    <div style="font-size: 32px; font-weight: 800; color: #D77656; margin-top: 4px;">0.00 mL/min</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature Bullets (✦) -->
+          <div class="bullet-group">
+            <div id="s2-b1" class="bullet-item">
+              <span class="bullet-sparkle">✦</span>
+              <span>Tightest cellular barrier in the human body</span>
+            </div>
+            <div id="s2-b2" class="bullet-item">
+              <span class="bullet-sparkle">✦</span>
+              <span>Hermetically isolates the central nervous system</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================
+             SCENE 3: TIGHT JUNCTIONS (13.092s - 17.460s)
+             "Special protein seams called tight junctions weld every gap shut."
+             ======================================================== -->
+        <div id="scene-3" class="scene">
+          <div style="position: absolute; top: 200px; left: 0; width: 1080px;">
+            <div class="sub-lead">special protein seams called</div>
+            <div class="main-title">Tight Junctions</div>
+          </div>
+
+          <div class="stage-outer">
+            <div class="stage-inner">
+              <div class="stage-header" data-layout-ignore="true">
+                <div class="stage-dots"><div class="stage-dot"></div><div class="stage-dot"></div><div class="stage-dot"></div></div>
+                <div class="stage-title">MOLECULAR SEAM // WELDED SHUT</div>
+                <div class="stage-status-badge" style="color: #38BDF8; background: rgba(56, 189, 248, 0.18); border-color: rgba(56, 189, 248, 0.4);">GAP: 0 nm</div>
+              </div>
+              <div class="stage-body">
+                <!-- Protein Welds Schematic -->
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                  <div style="background: #202026; border-left: 6px solid #D77656; border-radius: 10px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                      <div style="font-size: 26px; font-weight: 700; color: #FFFFFF;">Claudin-5 Protein Complexes</div>
+                      <div style="font-size: 17px; color: #A1A1AA; margin-top: 2px;" data-layout-ignore="true">Transmembrane molecular interlock</div>
+                    </div>
+                    <span style="font-family: var(--font-mono); font-size: 18px; font-weight: 700; color: #D77656; background: rgba(215, 118, 86, 0.15); padding: 4px 12px; border-radius: 6px;" data-layout-ignore="true">WELDED</span>
+                  </div>
+
+                  <div style="background: #202026; border-left: 6px solid #06B6D4; border-radius: 10px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                      <div style="font-size: 26px; font-weight: 700; color: #FFFFFF;">Occludin &amp; Junctional Adhesion</div>
+                      <div style="font-size: 17px; color: #A1A1AA; margin-top: 2px;" data-layout-ignore="true">Eliminates all paracellular aqueous pores</div>
+                    </div>
+                    <span style="font-family: var(--font-mono); font-size: 18px; font-weight: 700; color: #38BDF8; background: rgba(56, 189, 248, 0.15); padding: 4px 12px; border-radius: 6px;" data-layout-ignore="true">SEALED</span>
+                  </div>
+
+                  <div style="background: #202026; border-left: 6px solid #10B981; border-radius: 10px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                      <div style="font-size: 26px; font-weight: 700; color: #FFFFFF;">ZO-1 Cytoskeleton Scaffold</div>
+                      <div style="font-size: 17px; color: #A1A1AA; margin-top: 2px;" data-layout-ignore="true">Structural intracellular anchoring</div>
+                    </div>
+                    <span style="font-family: var(--font-mono); font-size: 18px; font-weight: 700; color: #34D399; background: rgba(16, 185, 129, 0.15); padding: 4px 12px; border-radius: 6px;" data-layout-ignore="true">LOCKED</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bullet-group">
+            <div id="s3-b1" class="bullet-item">
+              <span class="bullet-sparkle">✦</span>
+              <span>Interlocking claudin &amp; occludin seams</span>
+            </div>
+            <div id="s3-b2" class="bullet-item">
+              <span class="bullet-sparkle">✦</span>
+              <span>Completely eliminates paracellular pores</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================
+             SCENE 4: DEFENSE SHIELD IN ACTION (17.680s - 22.768s)
+             "Toxins, bacteria, and huge molecules slam straight into this shield."
+             ======================================================== -->
+        <div id="scene-4" class="scene">
+          <div style="position: absolute; top: 200px; left: 0; width: 1080px;">
+            <div class="sub-lead">pathogens, toxins &amp; large proteins</div>
+            <div class="main-title">Slam Into This Shield</div>
+          </div>
+
+          <div class="stage-outer">
+            <div class="stage-inner">
+              <div class="stage-header" data-layout-ignore="true">
+                <div class="stage-dots"><div class="stage-dot"></div><div class="stage-dot"></div><div class="stage-dot"></div></div>
+                <div class="stage-title">INTERCEPT DEFENSE // ACTIVE RADAR</div>
+                <div class="stage-status-badge" style="background: rgba(239, 68, 68, 0.18); color: #F87171; border-color: rgba(239, 68, 68, 0.4);">DEFLECTED</div>
+              </div>
+              <div class="stage-body" style="gap: 16px;">
+                <!-- Threat Recoil Cards -->
+                <div id="threat-1" style="background: #222228; border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 18px 22px; display: flex; align-items: center; justify-content: space-between;">
+                  <div style="display: flex; align-items: center; gap: 16px;">
+                    <span style="font-family: var(--font-mono); font-size: 24px; color: #EF4444;" data-layout-ignore="true">⤬</span>
+                    <div>
+                      <div style="font-size: 26px; font-weight: 700; color: #FFFFFF;">Bacteria &amp; Pathogens</div>
+                      <div style="font-size: 17px; color: #A1A1AA;" data-layout-ignore="true">Size ~1-2 µm — Zero entry</div>
+                    </div>
+                  </div>
+                  <span style="font-family: var(--font-mono); font-size: 18px; font-weight: 800; color: #EF4444; background: rgba(239, 68, 68, 0.12); padding: 4px 14px; border-radius: 6px;" data-layout-ignore="true">BLOCKED</span>
+                </div>
+
+                <div id="threat-2" style="background: #222228; border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 18px 22px; display: flex; align-items: center; justify-content: space-between;">
+                  <div style="display: flex; align-items: center; gap: 16px;">
+                    <span style="font-family: var(--font-mono); font-size: 24px; color: #EF4444;" data-layout-ignore="true">⤬</span>
+                    <div>
+                      <div style="font-size: 26px; font-weight: 700; color: #FFFFFF;">Systemic Blood Toxins</div>
+                      <div style="font-size: 17px; color: #A1A1AA;" data-layout-ignore="true">Polar molecules (&gt;500 Da)</div>
+                    </div>
+                  </div>
+                  <span style="font-family: var(--font-mono); font-size: 18px; font-weight: 800; color: #EF4444; background: rgba(239, 68, 68, 0.12); padding: 4px 14px; border-radius: 6px;" data-layout-ignore="true">BLOCKED</span>
+                </div>
+
+                <div id="threat-3" style="background: #222228; border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 18px 22px; display: flex; align-items: center; justify-content: space-between;">
+                  <div style="display: flex; align-items: center; gap: 16px;">
+                    <span style="font-family: var(--font-mono); font-size: 24px; color: #EF4444;" data-layout-ignore="true">⤬</span>
+                    <div>
+                      <div style="font-size: 26px; font-weight: 700; color: #FFFFFF;">Large Therapeutic Biologics</div>
+                      <div style="font-size: 17px; color: #A1A1AA;" data-layout-ignore="true">Antibodies (~150 kDa)</div>
+                    </div>
+                  </div>
+                  <span style="font-family: var(--font-mono); font-size: 18px; font-weight: 800; color: #EF4444; background: rgba(239, 68, 68, 0.12); padding: 4px 14px; border-radius: 6px;" data-layout-ignore="true">BLOCKED</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bullet-group">
+            <div id="s4-b1" class="bullet-item">
+              <span class="bullet-sparkle">✦</span>
+              <span>Zero passive penetration for polar molecules</span>
+            </div>
+            <div id="s4-b2" class="bullet-item">
+              <span class="bullet-sparkle">✦</span>
+              <span>Shields neurons from blood-borne toxicity</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================
+             SCENE 5: THE 90% STAT SLAM (22.988s - 27.164s)
+             "Over 90 percent of small drugs cannot cross this wall."
+             ======================================================== -->
+        <div id="scene-5" class="scene">
+          <div style="position: absolute; top: 200px; left: 0; width: 1080px;">
+            <div class="sub-lead">the pharmaceutical paradox</div>
+            <div class="main-title">Small Drugs Blocked</div>
+          </div>
+
+          <div class="stage-outer">
+            <div class="stage-inner">
+              <div class="stage-header" data-layout-ignore="true">
+                <div class="stage-dots"><div class="stage-dot"></div><div class="stage-dot"></div><div class="stage-dot"></div></div>
+                <div class="stage-title">PRIMARY RESEARCH // NCBI NBK519556</div>
+                <div class="stage-status-badge" style="background: rgba(215, 118, 86, 0.18); color: #D77656; border-color: rgba(215, 118, 86, 0.4);">CLAIM C2 VERIFIED</div>
+              </div>
+              <div class="stage-body" style="align-items: center; justify-content: center; text-align: center;">
+                <!-- Massive Hero Stat -->
+                <div style="display: flex; align-items: baseline; justify-content: center;">
+                  <span id="hero-stat-num" style="font-size: 130px; font-weight: 900; color: #FFFFFF; letter-spacing: -0.04em; line-height: 1;">&gt;90</span>
+                  <span style="font-size: 90px; font-weight: 900; color: #D77656; margin-left: 6px;">%</span>
+                </div>
+                <div style="font-size: 28px; font-weight: 700; color: #A1A1AA; letter-spacing: 0.05em; text-transform: uppercase; margin-top: 6px;">
+                  Of Small Drugs Cannot Cross Wall
+                </div>
+
+                <div style="margin-top: 26px; width: 100%; background: #222228; border-radius: 12px; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--dark-border);">
+                  <span style="font-size: 20px; color: #E4E4E7; font-weight: 600;">Large Therapeutics &amp; Biologics:</span>
+                  <span style="font-family: var(--font-mono); font-size: 22px; color: #EF4444; font-weight: 800;" data-layout-ignore="true">~100% REJECTED</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bullet-group">
+            <div id="s5-b1" class="bullet-item">
+              <span class="bullet-sparkle">✦</span>
+              <span>Blocks 98% of potential CNS pharmaceuticals</span>
+            </div>
+            <div id="s5-b2" class="bullet-item">
+              <span class="bullet-sparkle">✦</span>
+              <span>Why brain cancer &amp; Alzheimer's treatments fail</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================
+             SCENE 6: VIP SELECTIVITY (27.384s - 32.208s)
+             "Only tiny molecules or special nutrient transporters earn a pass."
+             ======================================================== -->
+        <div id="scene-6" class="scene">
+          <div style="position: absolute; top: 200px; left: 0; width: 1080px;">
+            <div class="sub-lead">the exclusive VIP clearance</div>
+            <div class="main-title">Nutrient Transporters</div>
+          </div>
+
+          <div class="stage-outer">
+            <div class="stage-inner">
+              <div class="stage-header" data-layout-ignore="true">
+                <div class="stage-dots"><div class="stage-dot"></div><div class="stage-dot"></div><div class="stage-dot"></div></div>
+                <div class="stage-title">SELECTIVE CLEARANCE // VIP ACCESS</div>
+                <div class="stage-status-badge" style="background: rgba(16, 185, 129, 0.18); color: #34D399; border-color: rgba(16, 185, 129, 0.4);">AUTHORIZED</div>
+              </div>
+              <div class="stage-body" style="gap: 18px;">
+                <div style="background: #202026; border-left: 6px solid #10B981; border-radius: 12px; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between;">
+                  <div>
+                    <div style="font-size: 26px; font-weight: 800; color: #FFFFFF;">Lipid Diffusion (&lt; 400 Da)</div>
+                    <div style="font-size: 17px; color: #A1A1AA; margin-top: 4px;" data-layout-ignore="true">Oxygen, CO₂, Alcohol &amp; Lipophilic Solutes</div>
+                  </div>
+                  <span style="font-family: var(--font-mono); font-size: 18px; font-weight: 800; color: #34D399; background: rgba(16, 185, 129, 0.15); padding: 6px 14px; border-radius: 6px;" data-layout-ignore="true">AUTHORIZED</span>
+                </div>
+
+                <div style="background: #202026; border-left: 6px solid #10B981; border-radius: 12px; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between;">
+                  <div>
+                    <div style="font-size: 26px; font-weight: 800; color: #FFFFFF;">Carrier-Mediated Transporters</div>
+                    <div style="font-size: 17px; color: #A1A1AA; margin-top: 4px;" data-layout-ignore="true">GLUT1 (Glucose) &amp; LAT1 (Amino Acids)</div>
+                  </div>
+                  <span style="font-family: var(--font-mono); font-size: 18px; font-weight: 800; color: #34D399; background: rgba(16, 185, 129, 0.15); padding: 6px 14px; border-radius: 6px;" data-layout-ignore="true">AUTHORIZED</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bullet-group">
+            <div id="s6-b1" class="bullet-item">
+              <span class="bullet-sparkle">✦</span>
+              <span>Strict molecular weight cutoff under 400 Daltons</span>
+            </div>
+            <div id="s6-b2" class="bullet-item">
+              <span class="bullet-sparkle">✦</span>
+              <span>Dedicated biochemical escort receptors</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================
+             SCENE 7: OUTRO (32.428s - 36.858s)
+             "That microscopic lock keeps your brain alive every second."
+             ======================================================== -->
+        <div id="scene-7" class="scene">
+          <div style="position: absolute; top: 440px; left: 0; width: 1080px; text-align: center;">
+            <div class="sub-lead">that microscopic lock</div>
+            <div class="hero-title" style="margin-top: 6px;">Keeps Your Brain Alive</div>
+            <div style="font-size: 52px; font-weight: 700; color: var(--accent-clay); font-style: italic; margin-top: 10px;">Every Single Second.</div>
+
+            <!-- Central 3D Tactile Lock Emblem (Matching Frame 076) -->
+            <div style="margin-top: 40px; display: flex; justify-content: center;">
+              <div id="outro-emblem" style="width: 220px; height: 220px; border-radius: 36px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.03), 0 20px 48px rgba(0,0,0,0.16); border: 1px solid rgba(0,0,0,0.06);">
+                <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="#D77656" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" fill="rgba(215, 118, 86, 0.12)"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  <circle cx="12" cy="16" r="1.5" fill="#D77656"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="bullet-group" style="top: 1040px;">
+            <div id="s7-b1" class="bullet-item" style="justify-content: center;">
+              <span class="bullet-sparkle">✦</span>
+              <span>Continuous 24/7 cranial homeostasis</span>
+            </div>
+            <div id="s7-b2" class="bullet-item" style="justify-content: center;">
+              <span class="bullet-sparkle">✦</span>
+              <span>The ultimate biological fortress</span>
+            </div>
+          </div>
+        </div>
+
+      </div> <!-- END #camera -->
+
+      <!-- ========================================================
+           KARAOKE HUD SUBTITLE CONTAINER
+           ======================================================== -->
+      <div id="karaoke-hud">
+        <!-- Line 0 -->
+        <div id="k-line-0" class="karaoke-line">
+          <span class="k-word" id="kw-0-0">Why</span>
+          <span class="k-word" id="kw-0-1">do</span>
+          <span class="k-word" id="kw-0-2">almost</span>
+          <span class="k-word" id="kw-0-3">all</span>
+          <span class="k-word" id="kw-0-4">brain</span>
+          <span class="k-word" id="kw-0-5">medicines</span>
+          <span class="k-word" id="kw-0-6">completely</span>
+          <span class="k-word" id="kw-0-7">fail?</span>
+        </div>
+
+        <!-- Line 1 -->
+        <div id="k-line-1" class="karaoke-line">
+          <span class="k-word" id="kw-1-0">Inside</span>
+          <span class="k-word" id="kw-1-1">your</span>
+          <span class="k-word" id="kw-1-2">skull</span>
+          <span class="k-word" id="kw-1-3">sits</span>
+          <span class="k-word" id="kw-1-4">a</span>
+          <span class="k-word" id="kw-1-5">locked</span>
+          <span class="k-word" id="kw-1-6">wall</span>
+          <span class="k-word" id="kw-1-7">of</span>
+          <span class="k-word" id="kw-1-8">endothelial</span>
+          <span class="k-word" id="kw-1-9">cells.</span>
+        </div>
+
+        <!-- Line 2 -->
+        <div id="k-line-2" class="karaoke-line">
+          <span class="k-word" id="kw-2-0">Scientists</span>
+          <span class="k-word" id="kw-2-1">call</span>
+          <span class="k-word" id="kw-2-2">this</span>
+          <span class="k-word" id="kw-2-3">cellular</span>
+          <span class="k-word" id="kw-2-4">fortress</span>
+          <span class="k-word" id="kw-2-5">the</span>
+          <span class="k-word" id="kw-2-6">Blood</span>
+          <span class="k-word" id="kw-2-7">Brain</span>
+          <span class="k-word" id="kw-2-8">Barrier.</span>
+        </div>
+
+        <!-- Line 3 -->
+        <div id="k-line-3" class="karaoke-line">
+          <span class="k-word" id="kw-3-0">Special</span>
+          <span class="k-word" id="kw-3-1">protein</span>
+          <span class="k-word" id="kw-3-2">seams</span>
+          <span class="k-word" id="kw-3-3">called</span>
+          <span class="k-word" id="kw-3-4">tight</span>
+          <span class="k-word" id="kw-3-5">junctions</span>
+          <span class="k-word" id="kw-3-6">weld</span>
+          <span class="k-word" id="kw-3-7">every</span>
+          <span class="k-word" id="kw-3-8">gap</span>
+          <span class="k-word" id="kw-3-9">shut.</span>
+        </div>
+
+        <!-- Line 4 -->
+        <div id="k-line-4" class="karaoke-line">
+          <span class="k-word" id="kw-4-0">Toxins,</span>
+          <span class="k-word" id="kw-4-1">bacteria,</span>
+          <span class="k-word" id="kw-4-2">and</span>
+          <span class="k-word" id="kw-4-3">huge</span>
+          <span class="k-word" id="kw-4-4">molecules</span>
+          <span class="k-word" id="kw-4-5">slam</span>
+          <span class="k-word" id="kw-4-6">straight</span>
+          <span class="k-word" id="kw-4-7">into</span>
+          <span class="k-word" id="kw-4-8">this</span>
+          <span class="k-word" id="kw-4-9">shield.</span>
+        </div>
+
+        <!-- Line 5 -->
+        <div id="k-line-5" class="karaoke-line">
+          <span class="k-word" id="kw-5-0">Over</span>
+          <span class="k-word" id="kw-5-1">90</span>
+          <span class="k-word" id="kw-5-2">percent</span>
+          <span class="k-word" id="kw-5-3">of</span>
+          <span class="k-word" id="kw-5-4">small</span>
+          <span class="k-word" id="kw-5-5">drugs</span>
+          <span class="k-word" id="kw-5-6">cannot</span>
+          <span class="k-word" id="kw-5-7">cross</span>
+          <span class="k-word" id="kw-5-8">this</span>
+          <span class="k-word" id="kw-5-9">wall.</span>
+        </div>
+
+        <!-- Line 6 -->
+        <div id="k-line-6" class="karaoke-line">
+          <span class="k-word" id="kw-6-0">Only</span>
+          <span class="k-word" id="kw-6-1">tiny</span>
+          <span class="k-word" id="kw-6-2">molecules</span>
+          <span class="k-word" id="kw-6-3">or</span>
+          <span class="k-word" id="kw-6-4">special</span>
+          <span class="k-word" id="kw-6-5">nutrient</span>
+          <span class="k-word" id="kw-6-6">transporters</span>
+          <span class="k-word" id="kw-6-7">earn</span>
+          <span class="k-word" id="kw-6-8">a</span>
+          <span class="k-word" id="kw-6-9">pass.</span>
+        </div>
+
+        <!-- Line 7 -->
+        <div id="k-line-7" class="karaoke-line">
+          <span class="k-word" id="kw-7-0">That</span>
+          <span class="k-word" id="kw-7-1">microscopic</span>
+          <span class="k-word" id="kw-7-2">lock</span>
+          <span class="k-word" id="kw-7-3">keeps</span>
+          <span class="k-word" id="kw-7-4">your</span>
+          <span class="k-word" id="kw-7-5">brain</span>
+          <span class="k-word" id="kw-7-6">alive</span>
+          <span class="k-word" id="kw-7-7">every</span>
+          <span class="k-word" id="kw-7-8">second.</span>
+        </div>
+      </div>
+
+      <!-- FOOTER WATERMARK -->
+      <div id="watermark">insiderforce.io</div>
+
+      <!-- GRAIN OVERLAY -->
+      <div id="grain-overlay">
+        <div class="grain-texture"></div>
+      </div>
+
+      <!-- NARRATION AUDIO TRACK -->
+      <audio id="narration" src="assets/narration.mp3" preload="auto" data-start="0" data-duration="36.858"></audio>
+
+    </div> <!-- END #root -->
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+
+      // ========================================================
+      // 1. MASTER CAMERA KINEMATICS (CONTINUOUS DRIFT & BREATHING)
+      // ========================================================
+      tl.to("#camera", { scale: 1.035, duration: 36.858, ease: "none" }, 0);
+
+      // Ceramic Pucks subtle floating drift
+      tl.to("#puck-tl", { y: -25, x: 10, rotation: 12, duration: 36.858, ease: "none" }, 0);
+      tl.to("#puck-br", { y: 25, x: -10, rotation: -12, duration: 36.858, ease: "none" }, 0);
+
+      // ========================================================
+      // 2. SCENE 0: HOOK (0.000s - 3.840s)
+      // ========================================================
+      tl.set("#scene-0", { opacity: 1 }, 0);
+      tl.set("#props-layer", { opacity: 1 }, 0);
+
+      tl.fromTo("#s0-lead", 
+        { y: 30, opacity: 0 }, 
+        { y: 0, opacity: 1, duration: 0.45, ease: "back.out(1.4)" }, 
+        0.10
+      );
+      tl.fromTo("#s0-title", 
+        { y: 40, opacity: 0, scale: 0.92 }, 
+        { y: 0, opacity: 1, scale: 1.0, duration: 0.55, ease: "back.out(1.5)" }, 
+        0.80
+      );
+      tl.fromTo("#s0-badge", 
+        { y: 35, opacity: 0, scale: 0.85 }, 
+        { y: 0, opacity: 1, scale: 1.0, duration: 0.50, ease: "back.out(1.7)" }, 
+        1.90
+      );
+      // Exit Scene 0 and bookend props cleanly before Scene 1
+      tl.to("#scene-0", { opacity: 0, y: -25, duration: 0.22, ease: "power2.in" }, 3.75);
+      tl.to("#props-layer", { opacity: 0, duration: 0.25, ease: "power2.in" }, 3.75);
+
+      // ========================================================
+      // 3. SCENE 1: LOCKED CELLULAR WALL (4.060s - 8.356s)
+      // ========================================================
+      tl.set("#scene-1", { opacity: 1 }, 3.95);
+      tl.fromTo("#scene-1 .stage-outer",
+        { y: 50, opacity: 0, scale: 0.92 },
+        { y: 0, opacity: 1, scale: 1.0, duration: 0.65, ease: "power3.out" },
+        4.06
+      );
+      tl.fromTo("#s1-b1",
+        { x: -30, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.40, ease: "back.out(1.5)" },
+        4.60
+      );
+      tl.fromTo("#s1-b2",
+        { x: -30, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.40, ease: "back.out(1.5)" },
+        5.20
+      );
+      // Exit Scene 1
+      tl.to("#scene-1", { opacity: 0, y: -20, duration: 0.20, ease: "power2.in" }, 8.30);
+
+      // ========================================================
+      // 4. SCENE 2: BLOOD-BRAIN BARRIER REVEAL (8.576s - 12.872s)
+      // ========================================================
+      tl.set("#scene-2", { opacity: 1 }, 8.45);
+      tl.fromTo("#scene-2 .stage-outer",
+        { y: 50, opacity: 0, scale: 0.92 },
+        { y: 0, opacity: 1, scale: 1.0, duration: 0.60, ease: "power3.out" },
+        8.58
+      );
+      tl.fromTo("#s2-b1",
+        { x: -30, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.40, ease: "back.out(1.5)" },
+        9.20
+      );
+      tl.fromTo("#s2-b2",
+        { x: -30, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.40, ease: "back.out(1.5)" },
+        9.90
+      );
+      // Tactile MCP badge drop slam on spoken "Blood Brain Barrier" (10.93s)
+      tl.fromTo("#s2-mcp-badge",
+        { y: -60, scale: 0.70, opacity: 0 },
+        { y: 0, scale: 1.0, opacity: 1, duration: 0.50, ease: "back.out(1.8)" },
+        10.75
+      );
+      // Camera micro-thud on badge impact
+      tl.fromTo("#camera",
+        { y: 4 },
+        { y: 0, duration: 0.18, ease: "power2.out" },
+        11.10
+      );
+      // Exit Scene 2
+      tl.to("#scene-2", { opacity: 0, y: -20, duration: 0.20, ease: "power2.in" }, 12.80);
+
+      // ========================================================
+      // 5. SCENE 3: TIGHT JUNCTIONS (13.092s - 17.460s)
+      // ========================================================
+      tl.set("#scene-3", { opacity: 1 }, 12.98);
+      tl.fromTo("#scene-3 .stage-outer",
+        { y: 50, opacity: 0, scale: 0.92 },
+        { y: 0, opacity: 1, scale: 1.0, duration: 0.60, ease: "power3.out" },
+        13.09
+      );
+      tl.fromTo("#s3-b1",
+        { x: -30, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.40, ease: "back.out(1.5)" },
+        13.80
+      );
+      tl.fromTo("#s3-b2",
+        { x: -30, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.40, ease: "back.out(1.5)" },
+        14.60
+      );
+      // Exit Scene 3
+      tl.to("#scene-3", { opacity: 0, y: -20, duration: 0.20, ease: "power2.in" }, 17.38);
+
+      // ========================================================
+      // 6. SCENE 4: DEFENSE SHIELD (17.680s - 22.768s)
+      // ========================================================
+      tl.set("#scene-4", { opacity: 1 }, 17.55);
+      tl.fromTo("#scene-4 .stage-outer",
+        { y: 50, opacity: 0, scale: 0.92 },
+        { y: 0, opacity: 1, scale: 1.0, duration: 0.60, ease: "power3.out" },
+        17.68
+      );
+      // Staggered threat impacts matching spoken words
+      tl.fromTo("#threat-1",
+        { scale: 0.90, opacity: 0, x: -20 },
+        { scale: 1.0, opacity: 1, x: 0, duration: 0.35, ease: "back.out(1.6)" },
+        18.20
+      );
+      tl.fromTo("#threat-2",
+        { scale: 0.90, opacity: 0, x: -20 },
+        { scale: 1.0, opacity: 1, x: 0, duration: 0.35, ease: "back.out(1.6)" },
+        19.20
+      );
+      tl.fromTo("#threat-3",
+        { scale: 0.90, opacity: 0, x: -20 },
+        { scale: 1.0, opacity: 1, x: 0, duration: 0.35, ease: "back.out(1.6)" },
+        20.10
+      );
+      tl.fromTo("#s4-b1",
+        { x: -30, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.40, ease: "back.out(1.5)" },
+        18.80
+      );
+      tl.fromTo("#s4-b2",
+        { x: -30, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.40, ease: "back.out(1.5)" },
+        19.80
+      );
+      // Exit Scene 4
+      tl.to("#scene-4", { opacity: 0, y: -20, duration: 0.20, ease: "power2.in" }, 22.70);
+
+      // ========================================================
+      // 7. SCENE 5: THE 90% STAT SLAM (22.988s - 27.164s)
+      // ========================================================
+      tl.set("#scene-5", { opacity: 1 }, 22.88);
+      tl.fromTo("#scene-5 .stage-outer",
+        { y: 50, opacity: 0, scale: 0.92 },
+        { y: 0, opacity: 1, scale: 1.0, duration: 0.60, ease: "power3.out" },
+        22.99
+      );
+      // Hero stat pop-in on spoken "90 percent" (23.41s)
+      tl.fromTo("#hero-stat-num",
+        { scale: 0.75, opacity: 0 },
+        { scale: 1.0, opacity: 1, duration: 0.50, ease: "back.out(1.7)" },
+        23.35
+      );
+      tl.fromTo("#s5-b1",
+        { x: -30, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.40, ease: "back.out(1.5)" },
+        23.80
+      );
+      tl.fromTo("#s5-b2",
+        { x: -30, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.40, ease: "back.out(1.5)" },
+        24.60
+      );
+      // Exit Scene 5
+      tl.to("#scene-5", { opacity: 0, y: -20, duration: 0.20, ease: "power2.in" }, 27.10);
+
+      // ========================================================
+      // 8. SCENE 6: VIP SELECTIVITY (27.384s - 32.208s)
+      // ========================================================
+      tl.set("#scene-6", { opacity: 1 }, 27.28);
+      tl.fromTo("#scene-6 .stage-outer",
+        { y: 50, opacity: 0, scale: 0.92 },
+        { y: 0, opacity: 1, scale: 1.0, duration: 0.60, ease: "power3.out" },
+        27.38
+      );
+      tl.fromTo("#s6-b1",
+        { x: -30, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.40, ease: "back.out(1.5)" },
+        28.20
+      );
+      tl.fromTo("#s6-b2",
+        { x: -30, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.40, ease: "back.out(1.5)" },
+        29.20
+      );
+      // Exit Scene 6
+      tl.to("#scene-6", { opacity: 0, y: -20, duration: 0.20, ease: "power2.in" }, 32.10);
+
+      // ========================================================
+      // 9. SCENE 7: OUTRO LOCK OF LIFE (32.428s - 36.858s)
+      // ========================================================
+      tl.set("#scene-7", { opacity: 1 }, 32.32);
+      // Re-introduce bookend ceramic & petal props
+      tl.to("#props-layer", { opacity: 1, duration: 0.35, ease: "power2.out" }, 32.32);
+
+      tl.fromTo("#scene-7 .hero-title",
+        { y: 40, opacity: 0, scale: 0.92 },
+        { y: 0, opacity: 1, scale: 1.0, duration: 0.60, ease: "back.out(1.4)" },
+        32.43
+      );
+      // Outro emblem slam
+      tl.fromTo("#outro-emblem",
+        { scale: 0.75, opacity: 0, y: 30 },
+        { scale: 1.0, opacity: 1, y: 0, duration: 0.65, ease: "back.out(1.7)" },
+        32.65
+      );
+      tl.fromTo("#s7-b1",
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.40, ease: "back.out(1.5)" },
+        32.70
+      );
+      tl.fromTo("#s7-b2",
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.40, ease: "back.out(1.5)" },
+        33.00
+      );
+
+      // ========================================================
+      // 10. SPOKEN KARAOKE HUD TIMESTAMPS SYNC (1:1 WORD PARITY)
+      // ========================================================
+      function syncWord(selector, start, end) {
+        tl.set(selector, { className: "k-word active" }, start);
+        tl.set(selector, { className: "k-word" }, end);
+      }
+
+      // Line 0 (0.000s - 3.840s)
+      tl.set("#k-line-0", { opacity: 1 }, 0.00);
+      syncWord("#kw-0-0", 0.10, 0.30);
+      syncWord("#kw-0-1", 0.31, 0.44);
+      syncWord("#kw-0-2", 0.45, 0.88);
+      syncWord("#kw-0-3", 0.90, 1.10);
+      syncWord("#kw-0-4", 1.12, 1.39);
+      syncWord("#kw-0-5", 1.41, 1.91);
+      syncWord("#kw-0-6", 1.94, 2.46);
+      syncWord("#kw-0-7", 2.49, 2.96);
+      tl.to("#k-line-0", { opacity: 0, duration: 0.15 }, 3.65);
+
+      // Line 1 (4.060s - 8.356s)
+      tl.set("#k-line-1", { opacity: 1 }, 4.06);
+      syncWord("#kw-1-0", 4.16, 4.62);
+      syncWord("#kw-1-1", 4.65, 4.79);
+      syncWord("#kw-1-2", 4.81, 5.15);
+      syncWord("#kw-1-3", 5.17, 5.40);
+      syncWord("#kw-1-4", 5.41, 5.47);
+      syncWord("#kw-1-5", 5.50, 5.81);
+      syncWord("#kw-1-6", 5.83, 6.07);
+      syncWord("#kw-1-7", 6.08, 6.18);
+      syncWord("#kw-1-8", 6.21, 6.92);
+      syncWord("#kw-1-9", 6.95, 7.47);
+      tl.to("#k-line-1", { opacity: 0, duration: 0.15 }, 8.15);
+
+      // Line 2 (8.576s - 12.872s)
+      tl.set("#k-line-2", { opacity: 1 }, 8.58);
+      syncWord("#kw-2-0", 8.68, 9.41);
+      syncWord("#kw-2-1", 9.44, 9.64);
+      syncWord("#kw-2-2", 9.65, 9.83);
+      syncWord("#kw-2-3", 9.85, 10.30);
+      syncWord("#kw-2-4", 10.31, 10.76);
+      syncWord("#kw-2-5", 10.79, 10.91);
+      syncWord("#kw-2-6", 10.93, 11.20);
+      syncWord("#kw-2-7", 11.23, 11.49);
+      syncWord("#kw-2-8", 11.51, 11.99);
+      tl.to("#k-line-2", { opacity: 0, duration: 0.15 }, 12.65);
+
+      // Line 3 (13.092s - 17.460s)
+      tl.set("#k-line-3", { opacity: 1 }, 13.09);
+      syncWord("#kw-3-0", 13.19, 13.67);
+      syncWord("#kw-3-1", 13.68, 14.14);
+      syncWord("#kw-3-2", 14.17, 14.43);
+      syncWord("#kw-3-3", 14.44, 14.67);
+      syncWord("#kw-3-4", 14.69, 14.92);
+      syncWord("#kw-3-5", 14.93, 15.42);
+      syncWord("#kw-3-6", 15.44, 15.70);
+      syncWord("#kw-3-7", 15.73, 15.95);
+      syncWord("#kw-3-8", 15.97, 16.19);
+      syncWord("#kw-3-9", 16.22, 16.58);
+      tl.to("#k-line-3", { opacity: 0, duration: 0.15 }, 17.20);
+
+      // Line 4 (17.680s - 22.768s)
+      tl.set("#k-line-4", { opacity: 1 }, 17.68);
+      syncWord("#kw-4-0", 17.78, 18.36);
+      syncWord("#kw-4-1", 18.49, 19.09);
+      syncWord("#kw-4-2", 19.29, 19.45);
+      syncWord("#kw-4-3", 19.48, 19.78);
+      syncWord("#kw-4-4", 19.80, 20.37);
+      syncWord("#kw-4-5", 20.39, 20.69);
+      syncWord("#kw-4-6", 20.72, 21.03);
+      syncWord("#kw-4-7", 21.05, 21.24);
+      syncWord("#kw-4-8", 21.27, 21.41);
+      syncWord("#kw-4-9", 21.43, 21.88);
+      tl.to("#k-line-4", { opacity: 0, duration: 0.15 }, 22.50);
+
+      // Line 5 (22.988s - 27.164s)
+      tl.set("#k-line-5", { opacity: 1 }, 22.99);
+      syncWord("#kw-5-0", 23.09, 23.39);
+      syncWord("#kw-5-1", 23.41, 23.73);
+      syncWord("#kw-5-2", 23.75, 24.13);
+      syncWord("#kw-5-3", 24.14, 24.21);
+      syncWord("#kw-5-4", 24.24, 24.54);
+      syncWord("#kw-5-5", 24.56, 24.95);
+      syncWord("#kw-5-6", 24.98, 25.31);
+      syncWord("#kw-5-7", 25.34, 25.64);
+      syncWord("#kw-5-8", 25.66, 25.85);
+      syncWord("#kw-5-9", 25.88, 26.28);
+      tl.to("#k-line-5", { opacity: 0, duration: 0.15 }, 26.90);
+
+      // Line 6 (27.384s - 32.208s)
+      tl.set("#k-line-6", { opacity: 1 }, 27.38);
+      syncWord("#kw-6-0", 27.48, 27.81);
+      syncWord("#kw-6-1", 27.83, 28.16);
+      syncWord("#kw-6-2", 28.18, 28.81);
+      syncWord("#kw-6-3", 28.83, 28.95);
+      syncWord("#kw-6-4", 28.97, 29.35);
+      syncWord("#kw-6-5", 29.37, 29.83);
+      syncWord("#kw-6-6", 29.85, 30.55);
+      syncWord("#kw-6-7", 30.57, 30.73);
+      syncWord("#kw-6-8", 30.76, 30.82);
+      syncWord("#kw-6-9", 30.83, 31.32);
+      tl.to("#k-line-6", { opacity: 0, duration: 0.15 }, 31.95);
+
+      // Line 7 (32.428s - 36.508s)
+      tl.set("#k-line-7", { opacity: 1 }, 32.43);
+      syncWord("#kw-7-0", 32.53, 32.75);
+      syncWord("#kw-7-1", 32.77, 33.50);
+      syncWord("#kw-7-2", 33.53, 33.78);
+      syncWord("#kw-7-3", 33.80, 34.07);
+      syncWord("#kw-7-4", 34.09, 34.23);
+      syncWord("#kw-7-5", 34.25, 34.50);
+      syncWord("#kw-7-6", 34.52, 34.85);
+      syncWord("#kw-7-7", 34.88, 35.10);
+      syncWord("#kw-7-8", 35.13, 35.60);
+      tl.to("#k-line-7", { opacity: 0.9, duration: 0.20 }, 36.20);
+
+      // Register master timeline with HyperFrames
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

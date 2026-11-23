@@ -1,0 +1,14 @@
+@"
+.env
+**/.env
+**/.backups/
+**/.hyperframes/
+**/.thumbnails/
+**/renders/
+**/audio/cache/
+workspace/references/
+*-snapshot.md
+*.mp4
+*.wav
+node_modules/
+"@ | Set-Content -Encoding utf8 .gitignore

@@ -1,0 +1,19 @@
+{
+  "theme_id": "01-paper-card-explainer",
+  "renderer": "hyperframes",
+  "aspect_ratios": [
+    "16:9",
+    "9:16"
+  ],
+  "pacing_mode": "kinetic",
+  "audio_preset": "editorial-kinetic",
+  "lufs_voice": -16,
+  "lufs_bgm": -30,
+  "sfx_cap_db_below_voice": 15,
+  "captions": "always-on-karaoke",
+  "character_tier": "tier-0-or-1-avatar",
+  "automation_fit": [
+    "mode-a-studio",
+    "mode-b-auto"
+  ]
+}

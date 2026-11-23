@@ -1,0 +1,19 @@
+{
+  "theme_id": "03-dark-saas-architecture",
+  "renderer": "hyperframes",
+  "aspect_ratios": [
+    "9:16",
+    "16:9"
+  ],
+  "pacing_mode": "pedagogical",
+  "audio_preset": "pure-focus",
+  "lufs_voice": -16,
+  "lufs_bgm": null,
+  "sfx_cap_db_below_voice": 18,
+  "captions": "off",
+  "character_tier": "none",
+  "automation_fit": [
+    "mode-a-studio",
+    "mode-b-auto"
+  ]
+}

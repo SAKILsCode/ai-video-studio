@@ -1,0 +1,17 @@
+{
+  "theme_id": "05-talking-head-educator",
+  "renderer": "hyperframes",
+  "aspect_ratios": [
+    "16:9"
+  ],
+  "pacing_mode": "pedagogical",
+  "audio_preset": "pure-focus",
+  "lufs_voice": -16,
+  "lufs_bgm": -30,
+  "sfx_cap_db_below_voice": 16,
+  "captions": "hook-only",
+  "character_tier": "real-human-facecam",
+  "automation_fit": [
+    "mode-a-studio"
+  ]
+}

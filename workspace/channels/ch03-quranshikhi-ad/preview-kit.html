@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <title>CH03: Emerald Editorial — Preview Kit</title>
+  <link rel="stylesheet" href="./tokens.css" />
+  <link rel="stylesheet" href="./components.css" />
+  <style>
+    body { background: #141817; display: flex; flex-direction: column; align-items: center; padding: 20px; gap: 16px; color: #fff; font-family: var(--font-bn-body); }
+    .bar { display: flex; gap: 10px; flex-wrap: wrap; }
+    button { padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: #222a27; color: #fff; cursor: pointer; font-weight: 600; }
+    .shell { width: 405px; height: 720px; border-radius: 16px; overflow: hidden; box-shadow: 0 24px 70px rgba(0,0,0,0.65); }
+    .scaler { width: 1080px; height: 1920px; transform: scale(0.375); transform-origin: top left; }
+  </style>
+</head>
+<body>
+  <div class="bar">
+    <button onclick="setTheme(false)">Paper + Cards Scene</button>
+    <button onclick="setTheme(true)">Emerald + Arabic Scene</button>
+  </div>
+  <div class="shell">
+    <div id="stage" class="scaler ee-stage">
+      <div class="ee-pattern"></div>
+      <div class="ee-top-bar">
+        <div class="ee-avatar-ring"></div>
+        <div class="ee-pill">🌙 ২০০ ঘন্টার অফার</div>
+      </div>
+      <div id="bodyContent" style="position:absolute;top:290px;left:0;right:0;">
+        <div class="ee-card-pair">
+          <div class="ee-course-card">
+            <div class="ee-arabic">ا ب ت</div>
+            <div style="font-family:var(--font-bn-display);font-size:44px;font-weight:700;">তিলাওয়াত শিখি</div>
+          </div>
+          <div class="ee-course-card">
+            <div class="ee-arabic">رَحْمَة</div>
+            <div style="font-family:var(--font-bn-display);font-size:40px;font-weight:700;">কুরআনের অর্থ বুঝি</div>
+          </div>
+        </div>
+      </div>
+      <div id="cap" class="ee-caption-zone">
+        একটা কোর্সে <span class="ee-hl-gold">শুদ্ধ তেলাওয়াত</span>
+      </div>
+    </div>
+  </div>
+  <script>
+    function setTheme(dark) {
+      const stage = document.getElementById('stage');
+      const body = document.getElementById('bodyContent');
+      const cap = document.getElementById('cap');
+      stage.classList.toggle('ee-stage--dark', dark);
+      if (dark) {
+        body.innerHTML = `<div style="padding:0 56px;display:flex;flex-direction:column;gap:18px;">
+          <div style="background:#fff;color:#121a17;padding:24px 32px;border-radius:16px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:28px;color:#52605a;">সকল প্রশংসা</span>
+            <span class="ee-arabic" style="color:#121a17;font-size:52px;">الْحَمْدُ</span>
+          </div>
+          <div style="background:#fff;color:#121a17;padding:24px 32px;border-radius:16px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:28px;color:#52605a;">আল্লাহর</span>
+            <span class="ee-arabic" style="color:#121a17;font-size:52px;">لِلَّهِ</span>
+          </div>
+        </div>`;
+        cap.innerHTML = `কুরআনের অর্থ বুঝি কোর্সে <span class="ee-hl-gold">মানে বোঝা</span>`;
+      } else {
+        body.innerHTML = `<div class="ee-card-pair">
+          <div class="ee-course-card">
+            <div class="ee-arabic">ا ب ت</div>
+            <div style="font-family:var(--font-bn-display);font-size:44px;font-weight:700;">তিলাওয়াত শিখি</div>
+          </div>
+          <div class="ee-course-card">
+            <div class="ee-arabic">رَحْمَة</div>
+            <div style="font-family:var(--font-bn-display);font-size:40px;font-weight:700;">কুরআনের অর্থ বুঝি</div>
+          </div>
+        </div>`;
+        cap.innerHTML = `একটা কোর্সে <span class="ee-hl-gold">শুদ্ধ তেলাওয়াত</span>`;
+      }
+    }
+  </script>
+</body>
+</html>

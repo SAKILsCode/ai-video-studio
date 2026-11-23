@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <title>CH01: Basic Claude Copy — Flagship Motion Preview Studio</title>
+  <link rel="stylesheet" href="./tokens.css" />
+  <link rel="stylesheet" href="./components.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="./motion-presets.js"></script>
+  <style>
+    body {
+      background: #0D1210;
+      color: #ECF2EE;
+      font-family: var(--font-en-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .toolbar {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 12px; padding: 14px 24px;
+      background: rgba(13, 22, 18, 0.94);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(12px);
+    }
+    .toolbar h1 { font-family: var(--font-en-display); font-size: 15px; letter-spacing: 0.04em; color: #F4BE52; }
+    .controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .btn {
+      padding: 8px 13px; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.06); color: #F4F8F6;
+      font-family: var(--font-mono); font-size: 12px; cursor: pointer;
+    }
+    .btn.active { background: #0D6B4A; border-color: #E5A93C; color: #FFFFFF; font-weight: 700; }
+    .btn--gold { background: #E5A93C; color: #101A16; border-color: transparent; font-weight: 700; }
+    .main {
+      flex: 1; display: flex; justify-content: center; align-items: flex-start;
+      padding: 24px; gap: 32px; flex-wrap: wrap;
+    }
+    .shell {
+      position: relative; border-radius: 18px; overflow: hidden;
+      box-shadow: 0 30px 90px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.14);
+    }
+    .shell.mode-9x16 { width: 405px; height: 720px; }
+    .shell.mode-16x9 { width: 960px; height: 540px; }
+    .scaler { transform-origin: top left; }
+    .mode-9x16 .scaler { width: 1080px; height: 1920px; transform: scale(0.375); }
+    .mode-16x9 .scaler { width: 1920px; height: 1080px; transform: scale(0.5); }
+
+    /* Safe Zone Guides (Including Shorts/Reels Right Action Rail) */
+    .safe-guides { display: none; position: absolute; inset: 0; z-index: 30; pointer-events: none; }
+    .show-guides .safe-guides { display: block; }
+    .safe-top { position: absolute; top: 0; left: 0; right: 0; height: 124px; background: rgba(229,72,77,0.16); border-bottom: 2px dashed rgba(229,72,77,0.85); display: grid; place-items: center; font: 700 20px var(--font-mono); color: #FECACA; }
+    .safe-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 310px; background: rgba(229,169,60,0.15); border-top: 2px dashed rgba(229,169,60,0.85); display: grid; place-items: center; font: 700 20px var(--font-mono); color: #FDE68A; }
+    .safe-right { position: absolute; right: 0; top: 52%; bottom: 310px; width: 130px; background: rgba(229,72,77,0.14); border-left: 2px dashed rgba(229,72,77,0.75); display: grid; place-items: center; writing-mode: vertical-rl; font: 700 18px var(--font-mono); color: #FECACA; }
+    .mode-16x9 .safe-top { height: 64px; }
+    .mode-16x9 .safe-bottom { height: 96px; }
+    .mode-16x9 .safe-right { display: none; }
+
+    .panel {
+      width: 340px; display: flex; flex-direction: column; gap: 16px;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px; padding: 18px;
+    }
+    .panel h2 { font-family: var(--font-en-display); font-size: 14px; color: #F4BE52; text-transform: uppercase; letter-spacing: 0.08em; }
+    .scene-list { display: flex; flex-direction: column; gap: 8px; }
+    .scene-btn { text-align: left; }
+    .scrubber-wrap { display: flex; flex-direction: column; gap: 8px; }
+    .scrubber-wrap input { width: 100%; accent-color: #E5A93C; }
+    .swatch-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .swatch { height: 42px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.16); display: grid; place-items: end center; padding-bottom: 4px; font: 700 10px var(--font-mono); }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <h1>CH01: BASIC CLAUDE COPY — FLAGSHIP MOTION STUDIO</h1>
+    <div class="controls">
+      <button class="btn btn--gold" id="playBtn" onclick="togglePlay()">▶ Play</button>
+      <button class="btn" onclick="replayScene()">↺ Replay</button>
+      <button id="btn9" class="btn active" onclick="setMode('9x16')">9:16</button>
+      <button id="btn16" class="btn" onclick="setMode('16x9')">16:9</button>
+      <button id="btnBn" class="btn active" onclick="setLang('bn')">বাংলা</button>
+      <button id="btnEn" class="btn" onclick="setLang('en')">English</button>
+      <button class="btn" onclick="toggleGuides(this)">Safe Zones</button>
+      <label class="btn">
+        Upload Speaker PNG
+        <input type="file" accept="image/*" hidden onchange="loadSpeaker(event)" />
+      </label>
+    </div>
+  </div>
+
+  <div class="main">
+    <div id="shell" class="shell mode-9x16">
+      <div id="stage" class="scaler cc-stage cc-stage--bn">
+        <div class="cc-lattice"></div>
+        <div class="cc-sparkle-dust"></div>
+
+        <div class="cc-camera" id="camera">
+          <!-- Persistent Header -->
+          <div class="cc-topbar">
+            <div class="cc-speaker-chip">
+              <div class="cc-avatar">
+                <div class="cc-avatar__inner" id="avatarSlot">SK</div>
+              </div>
+              <div class="cc-waveform" id="waveform">
+                <span class="cc-waveform__bar"></span>
+                <span class="cc-waveform__bar"></span>
+                <span class="cc-waveform__bar"></span>
+                <span class="cc-waveform__bar"></span>
+                <span class="cc-waveform__bar"></span>
+              </div>
+            </div>
+            <div class="cc-pill" id="topPill">✦ ফ্ল্যাগশিপ ডিজাইন সিস্টেম</div>
+          </div>
+
+          <!-- Dynamic Scene Hero Stage -->
+          <div class="cc-hero-area" id="heroStage"></div>
+
+          <!-- Editorial Kinetic Captions -->
+          <div class="cc-caption-stage" id="captionStage"></div>
+        </div>
+
+        <div class="cc-iris-wipe" id="irisWipe"></div>
+        <div class="cc-vignette"></div>
+
+        <div class="safe-guides">
+          <div class="safe-top">TOP SAFE (124px)</div>
+          <div class="safe-right">REELS / SHORTS ICONS</div>
+          <div class="safe-bottom">BOTTOM PLATFORM UI ZONE (310px)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Live Scenes (Click to Inspect)</h2>
+      <div class="scene-list">
+        <button class="btn scene-btn active" onclick="renderScene(1, this)">1. Dual Cards + Gold Bridge (Paper)</button>
+        <button class="btn scene-btn" onclick="renderScene(2, this)">2. 30-Tile Matrix Cascade (Paper)</button>
+        <button class="btn scene-btn" onclick="renderScene(3, this)">3. 10-Day Grid + Iris Wipe (Light → Dark)</button>
+        <button class="btn scene-btn" onclick="renderScene(4, this)">4. Speaker + Breakdown Stack (Emerald)</button>
+        <button class="btn scene-btn" onclick="renderScene(5, this)">5. Phone Player + REC + Price Strike</button>
+      </div>
+
+      <div class="scrubber-wrap">
+        <h2>Timeline Scrubber (<span id="timeLabel">0.00s</span>)</h2>
+        <input id="scrubber" type="range" min="0" max="1000" value="0" oninput="scrubTo(this.value)" />
+      </div>
+
+      <h2>Color Polarity</h2>
+      <div class="swatch-row">
+        <div class="swatch" style="background:#EEF1EB;color:#101A16;">PAPER</div>
+        <div class="swatch" style="background:#064E35;color:#FFF;">EMERALD</div>
+        <div class="swatch" style="background:#E5A93C;color:#101A16;">GOLD</div>
+        <div class="swatch" style="background:#E5484D;color:#FFF;">CORAL</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentScene = 1;
+    let currentLang = 'bn';
+    let speakerUrl = null;
+    let masterTl = null;
+
+    const CONTENT = {
+      bn: {
+        pill1: '✦ ২টি মডিউল একসাথে',
+        c1Kicker: 'MODULE 01', c1Glyph: '০১', c1Title: 'মূল কনসেপ্ট', c1Sub: 'শুরু থেকে পরিষ্কার ধারণা',
+        c2Kicker: 'MODULE 02', c2Glyph: '০২', c2Title: 'বাস্তব প্রয়োগ', c2Sub: 'ধাপে ধাপে প্র্যাকটিস',
+        bridge: 'একসাথে সম্পূর্ণ রোডম্যাপ',
+        cap1: [['একটি', ''], ['পদ্ধতিতে', ''], ['স্পষ্ট', 'gold'], ['ধারণা', 'gold'], ['আর', ''], ['দ্রুত', 'emerald'], ['বাস্তবায়ন', 'emerald']],
+
+        pill2: '✦ ৩০টি প্র্যাকটিস সেশন',
+        cap2: [['মোট', ''], ['ত্রিশটি', 'gold'], ['ধাপ', 'gold'], ['আর', ''], ['৮টি', 'emerald'], ['বোনাস', 'emerald']],
+
+        pill3: '✦ দিনে মাত্র ৩টি লেসন',
+        dayUnit: 'দিন',
+        cap3: [['নিয়মিত', ''], ['অনুশীলনে', ''], ['দশ', 'gold'], ['দিনেই', 'gold'], ['সম্পূর্ণ', '']],
+
+        pill4: '✦ ধাপে ধাপে বিশ্লেষণ',
+        rows: [
+          ['প্রথম ধাপ — কাঠামো', '০১'],
+          ['দ্বিতীয় ধাপ — প্রমাণ', '০২'],
+          ['তৃতীয় ধাপ — প্রয়োগ', '০৩'],
+          ['চতুর্থ ধাপ — ফলাফল', '০৪']
+        ],
+        cap4: [['প্রতিটি', ''], ['বিষয়ের', ''], ['ভেতরের', 'gold'], ['যুক্তি', 'gold'], ['পরিষ্কারভাবে', '']],
+
+        pill5: '✦ সীমিত সময়ের আপডেট',
+        phoneTitle: 'লেকচার ০৭ · সম্পূর্ণ রেকর্ড',
+        oldPrice: '৳১৫০০', newPrice: '৳৫০০', urgency: 'শুধু ২০০ ঘন্টা',
+        cap5: [['সব', ''], ['ক্লাস', ''], ['রেকর্ড', 'gold'], ['থাকবে', ''], ['যেকোনো', ''], ['সময়ে', 'gold']]
+      },
+      en: {
+        pill1: '✦ TWO CORE PILLARS',
+        c1Kicker: 'MODULE 01', c1Glyph: '01', c1Title: 'Core Theory', c1Sub: 'First-principles clarity',
+        c2Kicker: 'MODULE 02', c2Glyph: '02', c2Title: 'Applied Lab', c2Sub: 'Step-by-step execution',
+        bridge: 'UNIFIED WORKFLOW SYSTEM',
+        cap1: [['Master', ''], ['the', ''], ['core', 'gold'], ['mental', 'gold'], ['model', ''], ['faster', 'emerald']],
+
+        pill2: '✦ 30 STRUCTURED LESSONS',
+        cap2: [['Thirty', 'gold'], ['core', 'gold'], ['modules', ''], ['plus', ''], ['8', 'emerald'], ['bonus', 'emerald'], ['labs', 'emerald']],
+
+        pill3: '✦ 3 LESSONS PER DAY',
+        dayUnit: 'DAY',
+        cap3: [['Complete', ''], ['the', ''], ['full', ''], ['sprint', 'gold'], ['in', ''], ['10', 'gold'], ['days', 'gold']],
+
+        pill4: '✦ STEP-BY-STEP BREAKDOWN',
+        rows: [
+          ['Step 01 — Structure', '01'],
+          ['Step 02 — Evidence', '02'],
+          ['Step 03 — Execution', '03'],
+          ['Step 04 — Outcome', '04']
+        ],
+        cap4: [['Understand', ''], ['the', ''], ['exact', 'gold'], ['mechanism', 'gold'], ['clearly', '']],
+
+        pill5: '✦ RECORDED ACCESS',
+        phoneTitle: 'Lesson 07 · Full Replay',
+        oldPrice: '$150', newPrice: '$49', urgency: '200 HOURS ONLY',
+        cap5: [['Every', ''], ['session', ''], ['recorded', 'gold'], ['for', ''], ['anytime', 'gold'], ['replay', '']]
+      }
+    };
+
+    function renderWords(pairs) {
+      return pairs.map(([txt, tone]) =>
+        `<span class="cc-word ${tone ? 'cc-word--' + tone : ''}">${txt}</span>`
+      ).join('');
+    }
+
+    function renderScene(num, btn) {
+      currentScene = num;
+      if (btn) {
+        document.querySelectorAll('.scene-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      }
+      if (masterTl) masterTl.kill();
+
+      const t = CONTENT[currentLang];
+      const stage = document.getElementById('stage');
+      const hero = document.getElementById('heroStage');
+      const cap = document.getElementById('captionStage');
+      const pill = document.getElementById('topPill');
+      const iris = document.getElementById('irisWipe');
+      const cam = document.getElementById('camera');
+      const bars = Array.from(document.querySelectorAll('.cc-waveform__bar'));
+
+      gsap.set(iris, { scale: 0, opacity: 0 });
+      gsap.set(cam, { scale: 1 });
+
+      const isDark = num >= 4;
+      stage.classList.toggle('cc-stage--dark', isDark);
+
+      const tl = gsap.timeline({
+        onUpdate: () => {
+          const p = tl.progress();
+          document.getElementById('scrubber').value = Math.round(p * 1000);
+          document.getElementById('timeLabel').textContent = tl.time().toFixed(2) + 's';
+        },
+        onComplete: () => {
+          document.getElementById('playBtn').textContent = '▶ Play';
+        }
+      });
+
+      CCMotion.pulseWaveform(tl, bars, 4.2);
+      CCMotion.cameraDrift(tl, cam, 0, 4.0, 1.0, 1.03);
+
+      if (num === 1) {
+        pill.textContent = t.pill1;
+        hero.innerHTML = `
+          <div class="cc-card-pair">
+            <div class="cc-feature-card" id="cardA">
+              <div class="cc-feature-card__face">
+                <div class="cc-feature-card__kicker">${t.c1Kicker}</div>
+                <div class="cc-feature-card__glyph">${t.c1Glyph}</div>
+              </div>
+              <div class="cc-feature-card__footer">
+                <div class="cc-feature-card__title">${t.c1Title}</div>
+                <div class="cc-feature-card__sub">${t.c1Sub}</div>
+              </div>
+            </div>
+            <div class="cc-feature-card" id="cardB">
+              <div class="cc-feature-card__face">
+                <div class="cc-feature-card__kicker">${t.c2Kicker}</div>
+                <div class="cc-feature-card__glyph">${t.c2Glyph}</div>
+              </div>
+              <div class="cc-feature-card__footer">
+                <div class="cc-feature-card__title">${t.c2Title}</div>
+                <div class="cc-feature-card__sub">${t.c2Sub}</div>
+              </div>
+            </div>
+            <div class="cc-gold-bridge" id="goldBridge">${t.bridge}</div>
+          </div>`;
+        cap.innerHTML = renderWords(t.cap1);
+        CCMotion.enterCard(tl, '#cardA', 0.12, -3.2);
+        CCMotion.enterCard(tl, '#cardB', 0.42, 3.0);
+        CCMotion.sweepBridge(tl, '#goldBridge', 1.25);
+        CCMotion.revealWords(tl, '#captionStage .cc-word', 0.25, 0.16);
+      }
+
+      if (num === 2) {
+        pill.textContent = t.pill2;
+        let tiles = '';
+        for (let i = 0; i < 30; i++) tiles += `<div class="cc-tile cc-tile--done">✓</div>`;
+        for (let j = 0; j < 8; j++) tiles += `<div class="cc-tile cc-tile--bonus">★</div>`;
+        hero.innerHTML = `<div class="cc-matrix">${tiles}</div>`;
+        cap.innerHTML = renderWords(t.cap2);
+        CCMotion.cascadeTiles(tl, '.cc-tile--done', 0.12, 0.032);
+        CCMotion.cascadeTiles(tl, '.cc-tile--bonus', 1.35, 0.06);
+        CCMotion.revealWords(tl, '#captionStage .cc-word', 0.3, 0.16);
+      }
+
+      if (num === 3) {
+        pill.textContent = t.pill3;
+        const bnDigits = ['১','২','৩','৪','৫','৬','৭','৮','৯','১০'];
+        let days = '';
+        for (let d = 1; d <= 10; d++) {
+          const labelNum = currentLang === 'bn' ? bnDigits[d - 1] : d;
+          days += `<div class="cc-day-card cc-day-card--active"><div class="cc-day-card__num">${labelNum}</div><div class="cc-day-card__label">${t.dayUnit}</div></div>`;
+        }
+        hero.innerHTML = `<div class="cc-day-grid">${days}</div>`;
+        cap.innerHTML = renderWords(t.cap3);
+        CCMotion.cascadeTiles(tl, '.cc-day-card', 0.12, 0.08);
+        CCMotion.revealWords(tl, '#captionStage .cc-word', 0.25, 0.16);
+        CCMotion.irisTransition(tl, iris, 2.25, () => stage.classList.add('cc-stage--dark'));
+      }
+
+      if (num === 4) {
+        pill.textContent = t.pill4;
+        const speakerMarkup = speakerUrl
+          ? `<img src="${speakerUrl}" />`
+          : `<div style="width:82%;height:420px;border-radius:28px;border:2px dashed rgba(229,169,60,0.45);display:grid;place-items:center;text-align:center;padding:24px;color:#93B5A7;font-family:var(--font-mono);font-size:20px;">SPEAKER PNG<br/>(Soft Alpha Fade)</div>`;
+        const rowsMarkup = t.rows.map(([l, r]) =>
+          `<div class="cc-stack-row"><span class="cc-stack-row__left">${l}</span><span class="cc-stack-row__right">${r}</span></div>`
+        ).join('');
+        hero.innerHTML = `
+          <div class="cc-split-stage">
+            <div class="cc-speaker-cutout">${speakerMarkup}</div>
+            <div class="cc-stack-list">${rowsMarkup}</div>
+          </div>`;
+        cap.innerHTML = renderWords(t.cap4);
+        tl.fromTo('.cc-speaker-cutout', { opacity: 0, x: -34 }, { opacity: 1, x: 0, duration: 0.55, ease: 'power4.out' }, 0.1);
+        CCMotion.staggerRows(tl, '.cc-stack-row', 0.28, 0.18);
+        CCMotion.revealWords(tl, '#captionStage .cc-word', 0.35, 0.16);
+      }
+
+      if (num === 5) {
+        pill.textContent = t.pill5;
+        hero.innerHTML = `
+          <div class="cc-phone-wrap">
+            <div class="cc-phone" id="phoneFrame">
+              <div class="cc-rec-badge"><span class="cc-rec-badge__dot"></span>REC</div>
+              <div class="cc-phone__screen">
+                <div style="font-size:20px;color:#D7E7DF;font-weight:600;">${t.phoneTitle}</div>
+                <div style="flex:1;display:grid;place-items:center;">
+                  ${speakerUrl
+                    ? `<img src="${speakerUrl}" style="max-height:330px;object-fit:contain;" />`
+                    : `<div style="width:110px;height:110px;border-radius:50%;background:rgba(244,190,82,0.18);border:3px solid #F4BE52;display:grid;place-items:center;font-size:44px;color:#F4BE52;">▶</div>`}
+                </div>
+                <div class="cc-phone__bar"><div class="cc-phone__progress"></div></div>
+              </div>
+            </div>
+            <div class="cc-price-panel">
+              <div class="cc-price-old">${t.oldPrice}<span class="cc-price-old__strike" id="priceStrike"></span></div>
+              <div class="cc-price-new" id="priceNew">${t.newPrice}</div>
+              <div class="cc-urgency-pill" id="urgencyPill">${t.urgency}</div>
+            </div>
+          </div>`;
+        cap.innerHTML = renderWords(t.cap5);
+        CCMotion.enterCard(tl, '#phoneFrame', 0.1, -2);
+        CCMotion.strikePrice(tl, '#priceStrike', '#priceNew', 0.65);
+        tl.fromTo('#urgencyPill', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: 'back.out(1.4)' }, 1.15);
+        CCMotion.revealWords(tl, '#captionStage .cc-word', 0.3, 0.16);
+      }
+
+      masterTl = tl;
+      document.getElementById('playBtn').textContent = '❚❚ Pause';
+    }
+
+    function togglePlay() {
+      if (!masterTl) return;
+      if (masterTl.isActive()) {
+        masterTl.pause();
+        document.getElementById('playBtn').textContent = '▶ Play';
+      } else {
+        if (masterTl.progress() >= 0.99) masterTl.restart();
+        else masterTl.play();
+        document.getElementById('playBtn').textContent = '❚❚ Pause';
+      }
+    }
+
+    function replayScene() {
+      renderScene(currentScene);
+    }
+
+    function scrubTo(val) {
+      if (!masterTl) return;
+      masterTl.pause();
+      masterTl.progress(val / 1000);
+      document.getElementById('playBtn').textContent = '▶ Play';
+    }
+
+    function setMode(mode) {
+      const shell = document.getElementById('shell');
+      const stage = document.getElementById('stage');
+      const guides = shell.classList.contains('show-guides');
+      shell.className = 'shell mode-' + mode + (guides ? ' show-guides' : '');
+      stage.classList.toggle('cc-stage--16x9', mode === '16x9');
+      document.getElementById('btn9').classList.toggle('active', mode === '9x16');
+      document.getElementById('btn16').classList.toggle('active', mode === '16x9');
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      document.getElementById('stage').classList.toggle('cc-stage--bn', lang === 'bn');
+      document.getElementById('btnBn').classList.toggle('active', lang === 'bn');
+      document.getElementById('btnEn').classList.toggle('active', lang === 'en');
+      renderScene(currentScene);
+    }
+
+    function toggleGuides(btn) {
+      document.getElementById('shell').classList.toggle('show-guides');
+      btn.classList.toggle('active');
+    }
+
+    function loadSpeaker(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      speakerUrl = URL.createObjectURL(file);
+      document.getElementById('avatarSlot').innerHTML = `<img src="${speakerUrl}" />`;
+      renderScene(currentScene);
+    }
+
+    renderScene(1);
+  </script>
+</body>
+</html>

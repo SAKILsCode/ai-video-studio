@@ -1,0 +1,19 @@
+{
+  "theme_id": "06-veritasium-doc",
+  "renderer": "hyperframes",
+  "aspect_ratios": [
+    "16:9",
+    "9:16"
+  ],
+  "pacing_mode": "pedagogical",
+  "audio_preset": "story-ambient",
+  "lufs_voice": -16,
+  "lufs_bgm": -28,
+  "sfx_cap_db_below_voice": 16,
+  "captions": "off",
+  "character_tier": "real-human-or-faceless",
+  "automation_fit": [
+    "mode-a-studio",
+    "mode-b-overnight-draft"
+  ]
+}

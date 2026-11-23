@@ -1,0 +1,2 @@
+# CH04 Calisthenics Lab — Character & Clip Continuity Lock
+"Consistent athletic man with short brown hair, white sleeveless tank top, dark charcoal athletic shorts, white sneakers, and dark smartwatch, set against a twilight urban workout park with dark foliage and concrete pavement, subtle red anatomical muscle glow on active muscle groups, clean framing with negative space for top captions and bottom-left notepad."
